@@ -1,16 +1,26 @@
 #define PART_TM4C123GH6PM
 #define gcc 1
 
+#include  <ucos_ii.h>
+// #include  "app_cfg.h"
+// #include  <cpu_core.h>
+// #include  <os.h>
+// #include 	<lib_mem.h>
+
 #include <stdbool.h>
 #include <stdint.h>
-#include "inc/hw_gpio.h"
-#include "inc/hw_types.h"
-#include "inc/hw_memmap.h"
-#include "driverlib/sysctl.h"
-#include "driverlib/pin_map.h"
-#include "driverlib/gpio.h"
-#include "driverlib/pwm.h"
+
 #include "BSP.h"
+
+static  OS_STK       AppTaskStartStk[APP_CFG_TASK_START_STK_SIZE];
+static  OS_STK       Task1Stk[APP_CFG_TASK_START_STK_SIZE];
+static  OS_STK       Task2Stk[APP_CFG_TASK_START_STK_SIZE];
+
+static  void  AppTaskCreate         (void);
+static  void  AppTaskStart          (void       *p_arg);
+static  void  Task1          (char       *data);
+static  void  Task2          (char       *data);
+static  void  Task3          (char       *data);
 
 void HWInit()
 {
@@ -19,31 +29,109 @@ void HWInit()
 
 int main(void)
 {
-	PWMInit();
+  CPU_IntDis();
+  OSInit();
+	HWInit();
 
-	int count1 = 0;
-	int count2 = 0;
-	int count3 = 0;
+  OSTaskCreateExt((void (*)(void *)) AppTaskStart,           /* Create the start task                                */
+                    (void           *) 0,
+                    (OS_STK         *)&AppTaskStartStk[APP_CFG_TASK_START_STK_SIZE - 1],
+                    (INT8U           ) APP_CFG_TASK_START_PRIO,
+                    (INT16U          ) APP_CFG_TASK_START_PRIO,
+                    (OS_STK         *)&AppTaskStartStk[0],
+                    (INT32U          ) APP_CFG_TASK_START_STK_SIZE,
+                    (void           *) 0,
+                    (INT16U          )(OS_TASK_OPT_STK_CHK | OS_TASK_OPT_STK_CLR));
+
+  OSStart(); 
 
 	while(1)
 	{
-		PWMPulseWidthSet(PWM1_BASE, PWM_OUT_5, count2+=3 );
-		PWMPulseWidthSet(PWM1_BASE, PWM_OUT_6, count3+=2 );
-		PWMPulseWidthSet(PWM1_BASE, PWM_OUT_7, count1++ );
 		
-		//SysCtlDelay(1000);
+	}
+}
 
-		if(count1 > 0x0000B366)
-		{
-			count1 = 0;
-		}
-		if(count2 > 0x0000B366)
-		{
-			count2 = 0;
-		}
-		if(count3 > 0x0000B366)
-		{
-			count3 = 0;
-		}
+
+
+static  void  AppTaskStart (void *p_arg)
+{
+    (void)p_arg;                                                /* See Note #1                                              */
+
+		//AckMbox = OSMboxCreate((void *)0); /* Create 2 message mailboxes */
+		//TxMbox = OSMboxCreate((void *)0);
+   (void)&p_arg;
+
+    //BSP_Init();                                                 /* Initialize BSP functions                             */
+
+    //cpu_clk_freq = BSP_SysClkFreqGet();                         /* Determine SysTick reference freq.                    */
+    //cnts         = cpu_clk_freq                                 /* Determine nbr SysTick increments                     */
+    //             / (CPU_INT32U)OS_TICKS_PER_SEC;
+
+    OS_CPU_SysTickInit(0x00003E80);
+    CPU_Init();                                                 /* Initialize the uC/CPU services                       */
+
+#if (OS_TASK_STAT_EN > 0)
+    OSStatInit();                                               /* Determine CPU capacity                                   */
+#endif
+
+    Mem_Init();
+
+
+		OSTimeDlyHMSM(0, 0, 1, 0);   
+
+		AppTaskCreate();                                            /* Creates all the necessary application tasks.         */
+
+    OSTimeDlyHMSM(0, 0, 0, 200);			
+}
+
+
+/*
+*********************************************************************************************************
+*                                         AppTaskCreate()
+*
+* Description :  Create the application tasks.
+*
+* Argument(s) :  none.
+*
+* Return(s)   :  none.
+*
+* Caller(s)   :  AppTaskStart()
+*
+* Note(s)     :  none.
+*********************************************************************************************************
+*/
+
+static  void  AppTaskCreate (void)
+{
+OSTaskCreate((void (*)(void *)) Task1,           /* Create the second task                                */
+                    (void           *) 0,							// argument
+                    (OS_STK         *)&Task1Stk[APP_CFG_TASK_START_STK_SIZE - 1],
+                    (INT8U           ) 5 );  						// Task Priority
+                
+
+OSTaskCreate((void (*)(void *)) Task2,           /* Create the second task                                */
+                    (void           *) 0,							// argument
+                    (OS_STK         *)&Task2Stk[APP_CFG_TASK_START_STK_SIZE - 1],
+                    (INT8U           ) 6 );  						// Task Priority
+         										
+}
+
+static  void  Task1 (char *data)
+{
+	INT8U counter = 0;
+	while(1)
+	{
+		counter++;
+		OSTimeDlyHMSM(0, 0, 1, 0); /* Wait 1 second */
+	}
+}
+
+static  void  Task2 (char *data)
+{
+	INT8U counter = 0;
+	while(1)
+	{
+		counter++;
+		OSTimeDlyHMSM(0, 0, 1, 0); /* Wait 1 second */
 	}
 }

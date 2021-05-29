@@ -58,6 +58,9 @@ CMSIS_PATH := E:\Git\CMSIS\CMSIS\include
 DriverLib_PATH := ../../driverlib
 Tiva_PATH := C:\ti\TivaWare_C_Series-2.2.0.295
 RTOS_PATH := ../../uC-OS2/
+RTOS_CPU_PATH := ../../uC-CPU/
+RTOS_LIB_PATH := ../../uC-LIB/
+TEST := E:/Git/Embedded_Sensors_Lab/Educational_BoosterPack_MKII/uC-CPU/ARM-Cortex-M/ARMv7-M/GNU
 
 # list of all source directories used by this project
 VPATH = \
@@ -66,7 +69,14 @@ VPATH = \
 	$(RTOS_PATH)/Cfg/Template \
 	$(RTOS_PATH)/Ports/ARM-Cortex-M/ARMv7-M \
 	$(RTOS_PATH)/Ports/ARM-Cortex-M/ARMv7-M/GNU \
-	$(RTOS_PATH)/Source
+	$(RTOS_PATH)/Source \
+	$(RTOS_CPU_PATH) \
+	$(RTOS_CPU_PATH)/ARM-Cortex-M/ARMv7-M \
+	$(RTOS_CPU_PATH)/ARM-Cortex-M/ARMv7-M/GNU \
+	$(RTOS_CPU_PATH)/Cfg/Template \
+	$(RTOS_LIB_PATH) \
+	$(RTOS_LIB_PATH)/Cfg/Template \
+	$(RTOS_LIB_PATH)/Ports/ARM-Cortex-M4/GNU
 
 # list of all include directories needed by this project
 INCLUDES  = \
@@ -77,7 +87,14 @@ INCLUDES  = \
 	-I$(RTOS_PATH)/Cfg/Template \
 	-I$(RTOS_PATH)/Ports/ARM-Cortex-M/ARMv7-M \
 	-I$(RTOS_PATH)/Ports/ARM-Cortex-M/ARMv7-M/GNU \
-	-I$(RTOS_PATH)/Source
+	-I$(RTOS_PATH)/Source \
+	-I$(TEST) \
+	-I$(RTOS_CPU_PATH) \
+	-I$(RTOS_CPU_PATH)/ARM-Cortex-M/ARMv7-M/GNU \
+	-I$(RTOS_CPU_PATH)/Cfg/Template \
+	-I$(RTOS_LIB_PATH) \
+	-I$(RTOS_LIB_PATH)/Cfg/Template \
+	-I$(RTOS_LIB_PATH)/Ports/ARM-Cortex-M4/GNU
 
 #-----------------------------------------------------------------------------
 # files
@@ -85,6 +102,9 @@ INCLUDES  = \
 
 # assembler source files
 ASM_SRCS := \
+	cpu_a.s \
+	os_cpu_a.s #\
+	#lib_mem_a.s
 	
 
 # C source files
@@ -92,10 +112,12 @@ C_SRCS := \
 	main.c \
 	system_TM4C123.c \
 	BSP.c \
-	startup_gcc.c
+	startup_gcc.c \
+	app_hooks.c
 
 
 RTOS_SRCS := \
+	os_dbg.c \
 	os_core.c \
 	os_flag.c \
 	os_mbox.c \
@@ -106,7 +128,13 @@ RTOS_SRCS := \
 	os_task.c \
 	os_time.c \
 	os_tmr.c \
-	os_cpu_c.c
+	os_cpu_c.c \
+	cpu_c.c \
+	cpu_core.c \
+	lib_ascii.c \
+	lib_math.c \
+	lib_mem.c \
+	lib_str.c
 
 DRIVERLIB_SRCS := \
 	gpio.c \
