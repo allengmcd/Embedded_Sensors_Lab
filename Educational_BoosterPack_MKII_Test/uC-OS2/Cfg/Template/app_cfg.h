@@ -54,9 +54,6 @@
 
 #define  OS_TASK_TMR_PRIO                  (OS_LOWEST_PRIO - 2u)
 
-#define  CPU_CFG_KA_IPL_BOUNDARY            4u
-
-#define CPU_CFG_NVIC_PRIO_BITS             4u
 
 /*
 *********************************************************************************************************
@@ -66,8 +63,6 @@
 */
 
 #define  APP_CFG_STARTUP_TASK_STK_SIZE    128u
-#define  APP_CFG_TASK_START_STK_SIZE      256u
-#define  APP_CFG_TASK_START_PRIO          2u
 
 
 /*
