@@ -1,6 +1,6 @@
 /******************************************************************************
  *
- * uart_echo.ld - Linker configuration file for uart_echo.
+ * bitband.ld - Linker configuration file for bitband.
  *
  * Copyright (c) 2012-2020 Texas Instruments Incorporated.  All rights reserved.
  * Software License Agreement
@@ -36,10 +36,26 @@ SECTIONS
         KEEP(*(.isr_vector))
         *(.text*)
         *(.rodata*)
+        KEEP (*(.init))
+        KEEP (*(.fini))
         _etext = .;
     } > FLASH
 
-    .data : AT(ADDR(.text) + SIZEOF(.text))
+    .ARM.extab :
+    {
+        *(.ARM.extab* .gnu.linkonce.armextab.*)
+    } > FLASH
+
+    .ARM :
+    {
+        __exidx_start = .;
+        *(.ARM.exidx*)
+        __exidx_end = .;
+    } > FLASH
+
+    __end_code = .;
+
+    .data : AT(__end_code)
     {
         _data = .;
         _ldata = LOADADDR (.data);

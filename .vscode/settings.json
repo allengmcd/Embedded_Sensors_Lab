@@ -1,6 +1,13 @@
 {
     "files.associations": {
         "cpu.h": "c",
-        "tm4c123gh6pm.h": "c"
+        "tm4c123gh6pm.h": "c",
+        "uartstdio.h": "c",
+        "stdarg.h": "c",
+        "uart.h": "c",
+        "uartstdiotemp.h": "c",
+        "interrupt.h": "c",
+        "xstring": "c",
+        "xutility": "c"
     }
 }

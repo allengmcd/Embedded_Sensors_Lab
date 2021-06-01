@@ -54,9 +54,9 @@
 PROJECT     := BoosterPack
 
 Project_PATH := ../../
-CMSIS_PATH := E:\Git\CMSIS\CMSIS\include
+CMSIS_PATH := E:/Git/CMSIS/CMSIS/include
 DriverLib_PATH := ../../driverlib
-Tiva_PATH := C:\ti\TivaWare_C_Series-2.2.0.295
+Tiva_PATH := C:/ti/TivaWare_C_Series-2.2.0.295
 RTOS_PATH := ../../uC-OS2/
 RTOS_CPU_PATH := ../../uC-CPU/
 RTOS_LIB_PATH := ../../uC-LIB/
@@ -66,6 +66,7 @@ VPATH = \
 	$(Project_PATH)/src \
 	$(Project_PATH)/cfg \
 	$(DriverLib_PATH) \
+	$(UTILS_PATH) \
 	$(RTOS_PATH)/Ports/ARM-Cortex-M/ARMv7-M \
 	$(RTOS_PATH)/Ports/ARM-Cortex-M/ARMv7-M/GNU \
 	$(RTOS_PATH)/Source \
@@ -80,7 +81,6 @@ INCLUDES  = \
 	-I$(Project_PATH)/inc \
 	-I$(Project_PATH)/cfg \
 	-I$(CMSIS_PATH) \
-	-I$(DriverLib_PATH) \
 	-I$(Tiva_PATH) \
 	-I$(RTOS_PATH)/Ports/ARM-Cortex-M/ARMv7-M \
 	-I$(RTOS_PATH)/Ports/ARM-Cortex-M/ARMv7-M/GNU \
@@ -106,7 +106,7 @@ C_SRCS := \
 	main.c \
 	BSP.c \
 	startup_gcc.c \
-	app_hooks.c 
+	app_hooks.c
 #  system_TM4C123.c 
 
 RTOS_SRCS := \
@@ -139,6 +139,9 @@ DRIVERLIB_SRCS := \
 	timer.c \
 	uart.c
 
+UTILS_SRCS := \
+	uartstdioTemp.c
+
 OUTPUT    := $(PROJECT)
 LD_SCRIPT := $(PROJECT).ld
 
@@ -170,7 +173,7 @@ GNU_ARM := C:/"Program Files (x86)"/"GNU Arm Embedded Toolchain"/"9 2020-q2-upda
 
 CC    := $(GNU_ARM)/bin/arm-none-eabi-gcc
 AS    := $(GNU_ARM)/bin/arm-none-eabi-as
-LINK  := $(GNU_ARM)/bin/arm-none-eabi-g++
+LINK  := $(GNU_ARM)/bin/arm-none-eabi-gcc
 BIN   := $(GNU_ARM)/bin/arm-none-eabi-objcopy
 
 
@@ -190,6 +193,7 @@ RM    := rm
 # combine all the soruces...
 C_SRCS += $(RTOS_SRCS)
 C_SRCS += $(DRIVERLIB_SRCS)
+C_SRCS += $(UTILS_SRCS)
 
 ifeq (rel, $(CONF)) # Release configuration ..................................
 
@@ -217,7 +221,7 @@ BIN_DIR := dbg
 
 ASFLAGS = -g $(ARM_CPU) $(ARM_FPU) $(ASM_CPU) $(ASM_FPU)
 
-CFLAGS = -c -g $(ARM_CPU) $(ARM_FPU) $(FLOAT_ABI) -mthumb -Wall \
+CFLAGS = -funwind-tables -c -g $(ARM_CPU) $(ARM_FPU) $(FLOAT_ABI) -mthumb -Wall \
 	-ffunction-sections -fdata-sections \
 	-O $(INCLUDES) $(DEFINES)
 

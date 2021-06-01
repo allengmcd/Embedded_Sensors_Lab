@@ -6,7 +6,22 @@
 #include <stdint.h>
 
 #include "BSP.h"
-#include "tm4c123gh6pm.h"
+//#include "tm4c123gh6pm.h"
+
+#include "inc/hw_ints.h"
+#include "inc/hw_memmap.h"
+#include "inc/hw_types.h"
+#include "driverlib/debug.h"
+#include "driverlib/fpu.h"
+#include "driverlib/gpio.h"
+#include "driverlib/interrupt.h"
+#include "driverlib/pin_map.h"
+#include "driverlib/rom.h"
+#include "driverlib/rom_map.h"
+#include "driverlib/sysctl.h"
+#include "driverlib/timer.h"
+#include "driverlib/uart.h"
+#include "uartstdioTemp.h"
 
 static  OS_STK       AppTaskStartStk[APP_CFG_TASK_START_STK_SIZE];
 static  OS_STK       Task1Stk[APP_CFG_TASK_START_STK_SIZE];
@@ -20,8 +35,55 @@ static  void  Task3          (char       *data);
 
 uint16_t JoyX, JoyY;
 
+
+//*****************************************************************************
+//
+// Configure the UART and its pins.  This must be called before UARTprintf().
+//
+//*****************************************************************************
+void
+ConfigureUART(void)
+{
+    //
+    // Enable the GPIO Peripheral used by the UART.
+    //
+    MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+
+    //
+    // Enable UART0
+    //
+    MAP_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
+
+    //
+    // Configure GPIO Pins for UART mode.
+    //
+    MAP_GPIOPinConfigure(GPIO_PA0_U0RX);
+    MAP_GPIOPinConfigure(GPIO_PA1_U0TX);
+    MAP_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
+
+    //
+    // Use the internal 16MHz oscillator as the UART clock source.
+    //
+    MAP_UARTClockSourceSet(UART0_BASE, UART_CLOCK_PIOSC);
+
+    //
+    // Initialize the UART for console I/O.
+    //
+    UARTStdioConfig(0, 115200, 16000000);
+}
+
+
+
+
 void HWInit()
 {
+  
+  //
+  // Initialize the UART and write initial status.
+  //
+  ConfigureUART();
+  //UARTprintf("Timer->ADC->uDMA demo!\n\n");
+  //UARTprintf("ui32AverageResult1\tui32AverageResult2\tTotal Samples\n");
   BSP_Joystick_Init();
   BSP_LCD_Init();
   BSP_LCD_FillScreen(BSP_LCD_Color565(0, 0, 0));
@@ -137,6 +199,10 @@ static  void  Task2 (char *data)
     BSP_LCD_DrawString(0, 4, "JoyY=    ", BSP_LCD_Color565(255, 255, 255));
     BSP_LCD_SetCursor(5, 4);
     BSP_LCD_OutUDec((uint32_t)JoyY, BSP_LCD_Color565(255, 0, 255));
+
+    
+    UARTprintf("JoyX=%d\n", (uint32_t)JoyX);
+    UARTprintf("JoyY=%d\n\n", (uint32_t)JoyY);
 		OSTimeDlyHMSM(0, 0, 1, 0); /* Wait 1 second */
 	}
 }
