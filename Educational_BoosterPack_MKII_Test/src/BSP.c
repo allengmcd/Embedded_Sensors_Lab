@@ -154,6 +154,7 @@
 #include <stdint.h>
 #include "BSP.h"
 #include "TM4C123GH6PM.h"
+#include  <ucos_ii.h>
 
 #define __TI_COMPILER_VERSION__ 1
 
@@ -163,7 +164,7 @@ long StartCritical (void);    // previous I bit, disable interrupts
 void EndCritical(long sr);    // restore I bit to previous value
 void WaitForInterrupt(void);  // low power mode
 
-static uint32_t ClockFrequency = 16000000; // cycles/second
+//static uint32_t ClockFrequency = 16000000; // cycles/second
 
 // ------------BSP_Button1_Init------------
 // Initialize a GPIO pin for input, which corresponds
@@ -1658,5 +1659,5 @@ void BSP_LCD_PlotIncrement(void){
 // Inputs: n  number of 1 msec to wait
 // Outputs: none
 void BSP_Delay1ms(uint32_t n){
-  OSTimeDly(0, 0, 0, n);
+  OSTimeDlyHMSM(0, 0, 0, n);
 }

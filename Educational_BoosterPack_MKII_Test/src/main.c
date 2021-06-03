@@ -31,7 +31,10 @@ static  void  AppTaskCreate         (void);
 static  void  AppTaskStart          (void       *p_arg);
 static  void  Task1          (char       *data);
 static  void  Task2          (char       *data);
-static  void  Task3          (char       *data);
+
+void CPU_IntDis(void);
+void CPU_Init(void);
+void Mem_Init(void);
 
 uint16_t JoyX, JoyY;
 
@@ -93,7 +96,11 @@ int main(void)
 {
   CPU_IntDis();
 	HWInit();
+  UARTprintf("Hardware initialization completed without errors...\n");
+  UARTprintf("Starting uC/OS-II initilization...\n");
   OSInit();
+  UARTprintf("uC/OS-II initilization completed without errors...\n");
+  UARTprintf("Startup Task...\n");
 
   OSTaskCreateExt((void (*)(void *)) AppTaskStart,           /* Create the start task                                */
                     (void           *) 0,
@@ -105,6 +112,7 @@ int main(void)
                     (void           *) 0,
                     (INT16U          )(OS_TASK_OPT_STK_CHK | OS_TASK_OPT_STK_CLR));
 
+  UARTprintf("Startup Task complete...\n");
   OSStart(); 
 
 	while(1)
@@ -180,6 +188,8 @@ OSTaskCreate((void (*)(void *)) Task2,           /* Create the second task      
 
 static  void  Task1 (char *data)
 {
+  
+  UARTprintf("Starting Task1...\n");
 	while(1)
 	{
     //BSP_Joystick_Input(&JoyX, &JoyY, &current);
@@ -190,6 +200,7 @@ static  void  Task1 (char *data)
 
 static  void  Task2 (char *data)
 {
+  UARTprintf("Starting Task2...\n");
 	while(1)
 	{
     // print joystick status
@@ -200,9 +211,7 @@ static  void  Task2 (char *data)
     BSP_LCD_SetCursor(5, 4);
     BSP_LCD_OutUDec((uint32_t)JoyY, BSP_LCD_Color565(255, 0, 255));
 
-    
-    UARTprintf("JoyX=%d\n", (uint32_t)JoyX);
-    UARTprintf("JoyY=%d\n\n", (uint32_t)JoyY);
+    UARTprintf("JoyX, JoyY= %d, %d\r", (uint32_t)JoyX, (uint32_t)JoyY);
 		OSTimeDlyHMSM(0, 0, 1, 0); /* Wait 1 second */
 	}
 }

@@ -83,8 +83,8 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // SVCall handler
     IntDefaultHandler,                      // Debug monitor handler
     0,                                      // Reserved
-    (int)&OS_CPU_PendSVHandler,             // The PendSV handler
-    (int)&OS_CPU_SysTickHandler,            // The SysTick handler
+    (void *)(int)&OS_CPU_PendSVHandler,             // The PendSV handler
+    (void *)(int)&OS_CPU_SysTickHandler,            // The SysTick handler
     IntDefaultHandler,                      // GPIO Port A
     IntDefaultHandler,                      // GPIO Port B
     IntDefaultHandler,                      // GPIO Port C

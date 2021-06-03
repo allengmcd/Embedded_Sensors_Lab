@@ -140,7 +140,7 @@ DRIVERLIB_SRCS := \
 	uart.c
 
 UTILS_SRCS := \
-	uartstdioTemp.c
+	uartstdio.c
 
 OUTPUT    := $(PROJECT)
 LD_SCRIPT := $(PROJECT).ld
