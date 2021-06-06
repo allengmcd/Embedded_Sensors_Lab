@@ -221,7 +221,7 @@ void static adcinit(void){
 // BoosterPack pins J1.2 (X) and J3.26 (Y).
 // Input: none
 // Output: none
-void BSP_Joystick_Init(void){
+void TEMPBSP_Joystick_Init(void){
   SYSCTL_RCGCGPIO_R |= 0x0000001A; // 1) activate clock for Ports E, D, and B
   while((SYSCTL_PRGPIO_R&0x1A) != 0x1A){};// allow time for clocks to stabilize
                                    // 2) no need to unlock PE4, PD3, or PB5
@@ -261,7 +261,7 @@ void BSP_Joystick_Init(void){
 // Assumes: BSP_Joystick_Init() has been called
 #define SELECT    (*((volatile uint32_t *)0x40024040))  /* PE4 */
 //void BSP_Joystick_Input(uint16_t *x, uint16_t *y, uint8_t *select){
-void BSP_Joystick_Input(uint16_t *x, uint16_t *y){
+void TEMPBSP_Joystick_Input(uint16_t *x, uint16_t *y){
   ADC0_PSSI_R = 0x0002;            // 1) initiate SS1
   while((ADC0_RIS_R&0x02)==0){};   // 2) wait for conversion done
   *x = ADC0_SSFIFO1_R>>2;          // 3a) read first result

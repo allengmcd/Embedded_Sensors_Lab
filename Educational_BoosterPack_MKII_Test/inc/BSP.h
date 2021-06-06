@@ -194,7 +194,7 @@ uint8_t BSP_Button1_Input(void);
 // BoosterPack pins J1.2 (X) and J3.26 (Y).
 // Input: none
 // Output: none
-void BSP_Joystick_Init(void);
+void TEMPBSP_Joystick_Init(void);
 
 // ------------BSP_Joystick_Input------------
 // Read and return the immediate status of the
@@ -208,7 +208,7 @@ void BSP_Joystick_Init(void);
 // Output: none
 // Assumes: BSP_Joystick_Init() has been called
 //void BSP_Joystick_Input(uint16_t *x, uint16_t *y, uint8_t *select);
-void BSP_Joystick_Input(uint16_t *x, uint16_t *y);
+void TEMPBSP_Joystick_Input(uint16_t *x, uint16_t *y);
 
 // ------------BSP_LCD_Init------------
 // Initialize the SPI and GPIO, which correspond with

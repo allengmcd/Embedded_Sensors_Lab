@@ -105,6 +105,7 @@ ASM_SRCS := \
 C_SRCS := \
 	main.c \
 	BSP.c \
+	BSP2.c \
 	startup_gcc.c \
 	app_hooks.c
 #  system_TM4C123.c 
@@ -130,6 +131,7 @@ RTOS_SRCS := \
 	lib_str.c
 
 DRIVERLIB_SRCS := \
+	adc.c \
 	gpio.c \
 	interrupt.c \
 	pwm.c \

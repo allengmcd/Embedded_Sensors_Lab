@@ -8,6 +8,8 @@
         "uartstdiotemp.h": "c",
         "interrupt.h": "c",
         "xstring": "c",
-        "xutility": "c"
+        "xutility": "c",
+        "debug.h": "c",
+        "rom_map.h": "c"
     }
 }
