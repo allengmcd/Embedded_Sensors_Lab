@@ -27,6 +27,7 @@
 
 #define BUTTON_S1 GPIO_PIN_6
 #define BUTTON_S2 GPIO_PIN_7
+#define JOYSTICK_SEL GPIO_PIN_4
 
 // ------------BSP_Joystick_Init------------
 // Initialize a GPIO pin for input, which corresponds
@@ -51,6 +52,7 @@ void BSP_Joystick_Init(void);
 //void BSP_Joystick_Input(uint16_t *x, uint16_t *y, uint8_t *select);
 void BSP_Joystick_Input(uint32_t *x, uint32_t *y, uint32_t *z);
 
+void BSP_Joystick_Select(uint32_t *isPressed);
 
 // ------------BSP_Joystick_Init------------
 // Initialize a GPIO pin for input, which corresponds

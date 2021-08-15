@@ -12,6 +12,29 @@ void PortAIntHandler(void);
 // Output: none
 void BSP_Joystick_Init(void)
 {
+        // Enable the GPIOD peripheral
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOE);
+
+    //
+    // Wait for the GPIOD module to be ready.
+    //
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOE))
+    {
+    }
+
+    //
+    // Initialize the GPIO pin configuration.
+    //
+    // Set pins 6, 7 as input, SW controlled.
+    //
+    GPIOPinTypeGPIOInput(GPIO_PORTE_BASE, GPIO_PIN_4);
+
+    GPIOPadConfigSet(
+        GPIO_PORTE_BASE,
+        GPIO_PIN_4,
+        GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
+
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
     GPIOPinTypeADC(GPIO_PORTD_BASE, GPIO_PIN_3);
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOB);
@@ -49,6 +72,14 @@ void BSP_Joystick_Input(uint32_t *x, uint32_t *y, uint32_t *z)
     
     *x = gJoystick[0];
     *y = gJoystick[1];
+}
+
+void BSP_Joystick_Select(uint32_t *isPressed)
+{
+    //
+    // Read some pins.
+    //
+    *isPressed = (uint32_t)GPIOPinRead(GPIO_PORTE_BASE, GPIO_PIN_4);
 }
 
 

@@ -42,6 +42,7 @@ void CPU_Init(void);
 void Mem_Init(void);
 
 uint32_t JoyX, JoyY, JoyZ;
+uint32_t JoySel;
 uint32_t AccelX, AccelY, AccelZ;
 uint32_t Mic;
 uint32_t IsB1Pressed, IsB2Pressed;
@@ -189,6 +190,7 @@ static  void  Task2 (char *data)
 	{
     BSP_Button_Input(&IsB1Pressed, BUTTON_S1);
     BSP_Button_Input(&IsB2Pressed, BUTTON_S2);
+    BSP_Joystick_Select(&JoySel);
 
     // print joystick status
     BSP_LCD_DrawString(0, 3, "JoyX=    ", BSP_LCD_Color565(255, 255, 255));
@@ -218,6 +220,9 @@ static  void  Task2 (char *data)
     BSP_LCD_DrawString(0, 10, "Btn2=    ", BSP_LCD_Color565(255, 255, 255));
     BSP_LCD_SetCursor(5, 10);
     BSP_LCD_OutUDec(IsB2Pressed, BSP_LCD_Color565(255, 0, 255));
+    BSP_LCD_DrawString(0, 11, "JoyS=    ", BSP_LCD_Color565(255, 255, 255));
+    BSP_LCD_SetCursor(5, 11);
+    BSP_LCD_OutUDec(JoySel, BSP_LCD_Color565(255, 0, 255));
 
     // if(IsPressed != 0)
     // {
