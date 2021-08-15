@@ -1,5 +1,8 @@
 #include "BSP2.h"
 
+
+void PortAIntHandler(void);
+
 // ------------BSP_Joystick_Init------------
 // Initialize a GPIO pin for input, which corresponds
 // with BoosterPack pin J1.5 (Select button).
@@ -102,8 +105,42 @@ void BSP_Accelerometer_Input(uint32_t *x, uint32_t *y, uint32_t *z)
     *z = gAccel[2];
 }
 
+// PD6, PD7
+//
+void BSP_Button_Init(void)
+{
+    // Enable the GPIOD peripheral
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
+
+    //
+    // Wait for the GPIOD module to be ready.
+    //
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOD))
+    {
+    }
+
+    //
+    // Initialize the GPIO pin configuration.
+    //
+    // Set pins 6, 7 as input, SW controlled.
+    //
+    GPIOPinTypeGPIOInput(GPIO_PORTD_BASE, GPIO_PIN_6 | GPIO_PIN_7);
+
+    GPIOPadConfigSet(
+        GPIO_PORTD_BASE,
+        GPIO_PIN_6 | GPIO_PIN_7,
+        GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
+}
 
 
+void BSP_Button_Input(uint32_t *isPressed, uint8_t button)
+{
+    //
+    // Read some pins.
+    //
+    *isPressed = (uint32_t)GPIOPinRead(GPIO_PORTD_BASE, button);
+}
 
 //*****************************************************************************
 //

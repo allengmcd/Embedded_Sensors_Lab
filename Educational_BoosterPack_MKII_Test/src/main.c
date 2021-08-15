@@ -44,6 +44,7 @@ void Mem_Init(void);
 uint32_t JoyX, JoyY, JoyZ;
 uint32_t AccelX, AccelY, AccelZ;
 uint32_t Mic;
+uint32_t IsB1Pressed, IsB2Pressed;
 
 
 void HWInit()
@@ -55,6 +56,7 @@ void HWInit()
   BSP_UART_Init();
   //UARTprintf("Timer->ADC->uDMA demo!\n\n");
   //UARTprintf("ui32AverageResult1\tui32AverageResult2\tTotal Samples\n");
+  BSP_Button_Init();
   BSP_Joystick_Init();
   BSP_Accelerometer_Init();
   BSP_Microphone_Init();
@@ -185,6 +187,9 @@ static  void  Task2 (char *data)
   UARTprintf("Starting Task2...\n");
 	while(1)
 	{
+    BSP_Button_Input(&IsB1Pressed, BUTTON_S1);
+    BSP_Button_Input(&IsB2Pressed, BUTTON_S2);
+
     // print joystick status
     BSP_LCD_DrawString(0, 3, "JoyX=    ", BSP_LCD_Color565(255, 255, 255));
     BSP_LCD_SetCursor(5, 3);
@@ -204,8 +209,21 @@ static  void  Task2 (char *data)
     BSP_LCD_DrawString(0, 8, "AccZ=    ", BSP_LCD_Color565(255, 255, 255));
     BSP_LCD_SetCursor(5, 8);
     BSP_LCD_OutUDec((uint32_t)AccelZ, BSP_LCD_Color565(255, 0, 255));
+    BSP_LCD_DrawString(0, 8, "AccZ=    ", BSP_LCD_Color565(255, 255, 255));
+    BSP_LCD_SetCursor(5, 8);
+    BSP_LCD_OutUDec((uint32_t)AccelZ, BSP_LCD_Color565(255, 0, 255));
+    BSP_LCD_DrawString(0, 9, "Btn1=    ", BSP_LCD_Color565(255, 255, 255));
+    BSP_LCD_SetCursor(5, 9);
+    BSP_LCD_OutUDec(IsB1Pressed, BSP_LCD_Color565(255, 0, 255));
+    BSP_LCD_DrawString(0, 10, "Btn2=    ", BSP_LCD_Color565(255, 255, 255));
+    BSP_LCD_SetCursor(5, 10);
+    BSP_LCD_OutUDec(IsB2Pressed, BSP_LCD_Color565(255, 0, 255));
 
-    UARTprintf("JoyX, JoyY= %d, %d\r", (uint32_t)JoyX, (uint32_t)JoyY);
+    // if(IsPressed != 0)
+    // {
+    //   IsPressed == 0;
+    // }
+
 		OSTimeDlyHMSM(0, 0, 1, 0); /* Wait 1 second */
 	}
 }
