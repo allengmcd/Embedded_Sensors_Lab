@@ -63,6 +63,7 @@ void HWInit()
   BSP_Microphone_Init();
   BSP_LCD_Init();
   BSP_LCD_FillScreen(BSP_LCD_Color565(0, 0, 0));
+  BSP_LightSensor_Init();
 }
 
 int main(void)
@@ -190,6 +191,7 @@ static  void  Task2 (char *data)
 	{
     BSP_Button_Input(&IsB1Pressed, BUTTON_S1);
     BSP_Button_Input(&IsB2Pressed, BUTTON_S2);
+    //IsB2Pressed = (uint32_t)GPIOPinRead(GPIO_PORTD_BASE, Pin);
     BSP_Joystick_Select(&JoySel);
 
     // print joystick status
@@ -224,10 +226,12 @@ static  void  Task2 (char *data)
     BSP_LCD_SetCursor(5, 11);
     BSP_LCD_OutUDec(JoySel, BSP_LCD_Color565(255, 0, 255));
 
-    // if(IsPressed != 0)
-    // {
-    //   IsPressed == 0;
-    // }
+    BSP_LightSensor_Send();
+    int16_t temp = 0;
+    BSP_LightSensor_Receive(&temp);
+    BSP_LCD_DrawString(0, 12, "Opt=    ", BSP_LCD_Color565(255, 255, 255));
+    BSP_LCD_SetCursor(5, 12);
+    BSP_LCD_OutUDec(temp, BSP_LCD_Color565(255, 0, 255));
 
 		OSTimeDlyHMSM(0, 0, 1, 0); /* Wait 1 second */
 	}

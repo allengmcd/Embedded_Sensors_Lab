@@ -135,6 +135,7 @@ DRIVERLIB_SRCS := \
 	gpio.c \
 	interrupt.c \
 	pwm.c \
+	i2c.c \
 	sysctl.c \
 	sysexc.c \
 	systick.c \

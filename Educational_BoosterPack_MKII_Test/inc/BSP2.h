@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-
+#include "inc/hw_gpio.h"
 #include "inc/hw_ints.h"
 #include "inc/hw_memmap.h"
 #include "inc/hw_adc.h"
@@ -13,6 +13,7 @@
 #include "driverlib/adc.h"
 #include "driverlib/debug.h"
 #include "driverlib/gpio.h"
+#include "driverlib/i2c.h"
 #include "driverlib/interrupt.h"
 #include "driverlib/pin_map.h"
 #include "driverlib/rom.h"
@@ -28,6 +29,15 @@
 #define BUTTON_S1 GPIO_PIN_6
 #define BUTTON_S2 GPIO_PIN_7
 #define JOYSTICK_SEL GPIO_PIN_4
+
+//*****************************************************************************
+//
+// Define SHT21 I2C Address.
+//
+//*****************************************************************************
+#define SHT21_I2C_ADDRESS  0x44
+#define OPT3001_I2C_ADDRESS  0xFF
+#define MANUFACTUREID_REG 0x7E
 
 // ------------BSP_Joystick_Init------------
 // Initialize a GPIO pin for input, which corresponds
@@ -85,3 +95,7 @@ void BSP_Button_Init(void);
 void BSP_Button_Input(uint32_t *isPressed, uint8_t button);
 
 void BSP_UART_Init(void);
+
+void BSP_LightSensor_Init(void);
+void BSP_LightSensor_Send(void);
+void BSP_LightSensor_Receive(int16_t *result);

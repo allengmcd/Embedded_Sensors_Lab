@@ -140,6 +140,12 @@ void BSP_Accelerometer_Input(uint32_t *x, uint32_t *y, uint32_t *z)
 //
 void BSP_Button_Init(void)
 {
+    //HWREG(GPIO_PORTD_BASE + GPIO_O_LOCK) = GPIO_LOCK_KEY;
+    //HWREG(GPIO_PORTD_BASE + GPIO_O_CR) |= GPIO_PIN_7;
+    //HWREG(GPIO_PORTD_BASE + GPIO_O_AFSEL) &= ~GPIO_PIN_7;  
+    //HWREG(GPIO_PORTD_BASE + GPIO_O_DEN) |= GPIO_PIN_7;
+    //HWREG(GPIO_PORTD_BASE + GPIO_O_LOCK) = 0;       
+
     // Enable the GPIOD peripheral
     //
     SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOD);
@@ -151,17 +157,21 @@ void BSP_Button_Init(void)
     {
     }
 
+
+    HWREG(GPIO_PORTD_BASE + GPIO_O_LOCK) = GPIO_LOCK_KEY;
+    HWREG(GPIO_PORTD_BASE + GPIO_O_CR) |= GPIO_PIN_7;
+    HWREG(GPIO_PORTD_BASE + GPIO_O_AFSEL) &= ~GPIO_PIN_7;  
+    HWREG(GPIO_PORTD_BASE + GPIO_O_DEN) |= GPIO_PIN_7;
+    HWREG(GPIO_PORTD_BASE + GPIO_O_LOCK) = 0;       
+
+
     //
     // Initialize the GPIO pin configuration.
     //
     // Set pins 6, 7 as input, SW controlled.
     //
     GPIOPinTypeGPIOInput(GPIO_PORTD_BASE, GPIO_PIN_6 | GPIO_PIN_7);
-
-    GPIOPadConfigSet(
-        GPIO_PORTD_BASE,
-        GPIO_PIN_6 | GPIO_PIN_7,
-        GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
+    GPIOPadConfigSet(GPIO_PORTD_BASE, GPIO_PIN_6 | GPIO_PIN_7, GPIO_STRENGTH_2MA, GPIO_PIN_TYPE_STD_WPU);
 }
 
 
@@ -206,4 +216,99 @@ void BSP_UART_Init(void)
     // Initialize the UART for console I/O.
     //
     UARTStdioConfig(0, 115200, 16000000);
+}
+
+
+
+// ------------BSP_LightSensor_Init------------
+// Initialize a GPIO pin for input, which corresponds
+// with BoosterPack pins J1.8 (Light Sensor interrupt).
+// Initialize two I2C pins, which correspond with
+// BoosterPack pins J1.9 (SCL) and J1.10 (SDA).
+// Input: none
+// Output: none
+void BSP_LightSensor_Init(void)
+{
+    //
+    // Enable the I2C0 peripheral
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_I2C1);
+    //
+    // Wait for the I2C0 module to be ready.
+    //
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_I2C1))
+    {
+    }
+
+    //
+    // Initialize Master and Slave
+    //
+    I2CMasterInitExpClk(I2C1_BASE, SysCtlClockGet(), true);
+    //
+    // Specify slave address
+    //
+    I2CMasterSlaveAddrSet(I2C1_BASE, SHT21_I2C_ADDRESS, false);
+
+
+    // Enable the GPIOA peripheral
+    //
+    SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
+
+    //
+    // Wait for the GPIOA module to be ready.
+    //
+    while(!SysCtlPeripheralReady(SYSCTL_PERIPH_GPIOA))
+    {
+    }
+
+    GPIOPinTypeI2CSCL(GPIO_PORTA_BASE, GPIO_PIN_6);
+    GPIOPinTypeI2C(GPIO_PORTA_BASE, GPIO_PIN_7);
+}
+
+
+int16_t lsb;
+int16_t msb;
+int16_t three;
+
+void BSP_LightSensor_Send()
+{
+    //specify that we are writing (a register address) to the
+    //slave device
+    I2CMasterSlaveAddrSet(I2C1_BASE, OPT3001_I2C_ADDRESS, false);
+
+    //specify register to be read
+    I2CMasterDataPut(I2C1_BASE, MANUFACTUREID_REG);
+
+    //send control byte and register address byte to slave device
+    I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_SINGLE_SEND);
+
+    // Wait until the slave has received and acknowledged the data.
+    SysCtlDelay(100);
+    while(I2CMasterBusy(I2C1_BASE));
+}
+
+void BSP_LightSensor_Receive(int16_t *result)
+{
+    //specify that we are reading (a register address) to the
+    //slave device
+    I2CMasterSlaveAddrSet(I2C1_BASE, OPT3001_I2C_ADDRESS, true);
+
+    //send control byte and read from the register we
+    //specified
+    I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_RECEIVE_START);
+
+    //wait for MCU to finish transaction
+    SysCtlDelay(100);
+    while(I2CMasterBusy(I2C1_BASE));
+
+    msb = (I2CMasterDataGet(I2C1_BASE) & 0xFF);
+
+    I2CMasterControl(I2C1_BASE, I2C_MASTER_CMD_BURST_RECEIVE_FINISH); //Receive
+
+    SysCtlDelay(100);
+    while(I2CMasterBusy(I2C1_BASE));
+
+    lsb = (I2CMasterDataGet(I2C1_BASE) & 0xFF );
+
+    *result = (msb << 8) | lsb;
 }
