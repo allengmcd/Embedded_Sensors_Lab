@@ -27,6 +27,7 @@ MEMORY
     FLASH (rx) : ORIGIN = 0x00000000, LENGTH = 0x00100000
     SRAM (rwx) : ORIGIN = 0x20000000, LENGTH = 0x00040000
 }
+HEAP_SIZE = 2048;
 
 SECTIONS
 {
@@ -36,10 +37,26 @@ SECTIONS
         KEEP(*(.isr_vector))
         *(.text*)
         *(.rodata*)
+        KEEP (*(.init))
+        KEEP (*(.fini))
         _etext = .;
     } > FLASH
 
-    .data : AT(ADDR(.text) + SIZEOF(.text))
+    .ARM.extab :
+    {
+        *(.ARM.extab* .gnu.linkonce.armextab.*)
+    } > FLASH
+
+    .ARM :
+    {
+        __exidx_start = .;
+        *(.ARM.exidx*)
+        __exidx_end = .;
+    } > FLASH
+
+    __end_code = .;
+
+    .data : AT(__end_code)
     {
         _data = .;
         _ldata = LOADADDR (.data);
@@ -54,5 +71,15 @@ SECTIONS
         *(.bss*)
         *(COMMON)
         _ebss = .;
+    } > SRAM
+
+    .heap : AT(_ebss)
+    {
+        . = ALIGN(8);
+        __end__ = .;
+        PROVIDE(end = .);
+        __HeapBase = .;
+        . += HEAP_SIZE;
+        __HeapLimit = .;
     } > SRAM
 }

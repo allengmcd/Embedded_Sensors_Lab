@@ -12,6 +12,8 @@
 #ifndef TM4C129_H
 #define TM4C129_H
 
+#define TM4C1294NCPDT
+
 #if   defined(TM4C1290NCPDT)
   #include "TM4C1290NCPDT.h"
 #elif defined(TM4C1290NCZAD)

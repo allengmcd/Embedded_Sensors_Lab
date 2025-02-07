@@ -60,15 +60,14 @@ Tiva_PATH := C:/ti/TivaWare_C_Series-2.2.0.295
 
 # list of all source directories used by this project
 VPATH = \
-	$(Project_PATH)/src \
+	$(Project_PATH)src \
 	$(DriverLib_PATH) \
 
 # list of all include directories needed by this project
 INCLUDES  = \
-	-I$(Project_PATH)/inc \
-	-I$(Project_PATH)/cfg \
-	-I$(CMSIS_PATH) \
-	-I$(Tiva_PATH) 
+	-I"$(Project_PATH)inc" \
+	-I"$(CMSIS_PATH)" \
+	-I"$(Tiva_PATH)" 
 
 #-----------------------------------------------------------------------------
 # files
@@ -126,7 +125,7 @@ ASM_FPU   := -defsym=__FPU_PRESENT=1
 # GNU-ARM toolset (NOTE: You need to adjust to your machine)
 # see https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
 #
-GNU_ARM := C:/"Program Files (x86)"/"Arm GNU Toolchain arm-none-eabi"/"14.2 rel1"/"bin"
+GNU_ARM := C:/"Program Files (x86)"/"Arm GNU Toolchain arm-none-eabi"/"14.2 rel1"/
 
 
 CC    := $(GNU_ARM)/bin/arm-none-eabi-gcc
