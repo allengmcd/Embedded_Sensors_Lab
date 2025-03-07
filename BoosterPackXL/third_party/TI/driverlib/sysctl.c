@@ -65,6 +65,8 @@
 #define FLASH_PP_MAINSS_S       16
 #endif
 
+#define gcc
+
 //*****************************************************************************
 //
 // This macro converts the XTAL value provided in the ui32Config parameter to
@@ -1834,7 +1836,7 @@ SysCtlDelay(uint32_t ui32Count)
           "    bx      lr");
 }
 #endif
-//#if defined(codered) || defined(gcc) || defined(sourcerygxx)
+#if defined(codered) || defined(gcc) || defined(sourcerygxx)
 void __attribute__((naked))
 SysCtlDelay(uint32_t ui32Count)
 {
@@ -1842,7 +1844,7 @@ SysCtlDelay(uint32_t ui32Count)
           "    bne     SysCtlDelay\n"
           "    bx      lr");
 }
-//#endif
+#endif
 #if defined(rvmdk) || defined(__ARMCC_VERSION)
 __asm void
 SysCtlDelay(uint32_t ui32Count)

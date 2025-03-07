@@ -1,0 +1,6 @@
+{
+    "files.associations": {
+        "bsp_uart.h": "c",
+        "rom_map.h": "c"
+    }
+}

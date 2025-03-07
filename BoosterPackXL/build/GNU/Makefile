@@ -54,9 +54,10 @@
 PROJECT     := BoosterPack
 
 Project_PATH := ../../
-CMSIS_PATH := D:/AllenDevelopment/git/CMSIS/CMSIS_6/CMSIS/Core/Include
-DriverLib_PATH := ../../driverlib
-Tiva_PATH := C:/ti/TivaWare_C_Series-2.2.0.295
+ThirdParty_PATH := ../../third_party
+CMSIS_PATH := $(ThirdParty_PATH)/CMSIS/Core/Include
+DriverLib_PATH := $(ThirdParty_PATH)/TI/driverlib
+Tiva_PATH := $(ThirdParty_PATH)/TI
 
 # list of all source directories used by this project
 VPATH = \
@@ -82,19 +83,22 @@ INCLUDES  = \
 C_SRCS := \
 	main.c \
 	startup_gcc.c \
-  	system_TM4C129.c 
+  	system_TM4C129.c \
+	bsp_uart.c 
 
-# DRIVERLIB_SRCS := \
-# 	adc.c \
-# 	gpio.c \
-# 	interrupt.c \
-# 	pwm.c \
-# 	i2c.c \
-# 	sysctl.c \
-# 	sysexc.c \
-# 	systick.c \
-# 	timer.c \
-# 	uart.c
+DRIVERLIB_SRCS := \
+	adc.c \
+	cpu.c \
+	gpio.c \
+	interrupt.c \
+	pwm.c \
+	i2c.c \
+	ssi.c \
+	sysctl.c \
+	sysexc.c \
+	systick.c \
+	timer.c \
+	uart.c
 
 # UTILS_SRCS := \
 # 	uartstdio.c
@@ -103,11 +107,11 @@ OUTPUT    := $(PROJECT)
 LD_SCRIPT := $(PROJECT).ld
 
 
-LIB_DIRS  := # $(DriverLib_PATH)\gcc
-LIBS      := # $(DriverLib_PATH)\gcc\libdriver.a
+# LIB_DIRS  := $(DriverLib_PATH)/gcc
+# LIBS      := $(DriverLib_PATH)/gcc/libdriver.a
 
 # defines
-DEFINES   := -DTARGET_IS_TM4C123_RB1 -D__FPU_PRESENT
+DEFINES   := -DTARGET_IS_TM4C123_RB1 -D__FPU_PRESENT -Dgcc
 
 # ARM CPU, ARCH, FPU, and Float-ABI types...
 # ARM_CPU:   [cortex-m0 | cortex-m0plus | cortex-m1 | cortex-m3 | cortex-m4]
@@ -148,7 +152,7 @@ RM    := rm
 #
 
 # combine all the soruces...
-# C_SRCS += $(DRIVERLIB_SRCS)
+C_SRCS += $(DRIVERLIB_SRCS)
 # C_SRCS += $(UTILS_SRCS)
 
 ifeq (rel, $(CONF)) # Release configuration ..................................
@@ -235,11 +239,11 @@ endif
 
 .PHONY : clean
 clean:
-	-$(RM) $(BIN_DIR)/*.o \
-	$(BIN_DIR)/*.d \
-	$(BIN_DIR)/*.bin \
-	$(BIN_DIR)/*.elf \
-	$(BIN_DIR)/*.map
+	-del /Q $(BIN_DIR)\*.o \
+	$(BIN_DIR)\*.d \
+	$(BIN_DIR)\*.bin \
+	$(BIN_DIR)\*.elf \
+	$(BIN_DIR)\*.map
 	
 show:
 	@echo PROJECT = $(PROJECT)

@@ -40,6 +40,8 @@
 #ifndef __DRIVERLIB_PIN_MAP_H__
 #define __DRIVERLIB_PIN_MAP_H__
 
+#define PART_TM4C1294NCPDT
+
 //*****************************************************************************
 //
 // TM4C1230C3PM Port/Pin Mapping Definitions
