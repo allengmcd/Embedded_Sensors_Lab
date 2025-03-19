@@ -3,7 +3,7 @@
 #include "bsp_gpio.h"
 #include "bsp_uart.h"
 #include "bsp_ssi.h"
-#include "st7735.h"
+#include "HX8353E.h"
 
 #define PART_TM4C1294NCPDT
 
@@ -22,7 +22,17 @@ int main(void)
     UARTprintf("SSI Init Successful...\n  ");
 
     UARTprintf("ST7735 Init...\n  ");
-    ST7735_Init();
+    // ST7735_Init();
+
+    Screen_HX8353E(
+        GPIO_PORTH_BASE, 
+        GPIO_PIN_3, 
+        GPIO_PORTL_BASE, 
+        GPIO_PIN_3, 
+        GPIO_PORTN_BASE, 
+        GPIO_PIN_2, 
+        GPIO_PORTF_BASE, 
+        GPIO_PIN_2);
     UARTprintf("ST7735 Init Successful...\n  ");
 
     // uint8_t pui32DataTx[4];

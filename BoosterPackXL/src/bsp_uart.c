@@ -3,7 +3,6 @@
 
 void BSP_UART_Init(void)
 {
-    uint32_t ui32Status;
     uint32_t g_ui32SysClock;
 
     //

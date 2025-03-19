@@ -10,6 +10,8 @@
         "xstring": "c",
         "xutility": "c",
         "debug.h": "c",
-        "rom_map.h": "c"
+        "rom_map.h": "c",
+        "compare": "c",
+        "cstdint": "c"
     }
 }

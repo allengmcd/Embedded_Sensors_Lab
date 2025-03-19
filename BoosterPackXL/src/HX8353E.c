@@ -23,7 +23,7 @@
 // See Screen_HX8353E.h and ReadMe.txt for references
 //
 // Library header
-#include "Screen_HX8353E.h"
+#include "HX8353E.h"
 ///
 #define HX8353E_WIDTH  128
 #define HX8353E_HEIGHT 128
@@ -64,63 +64,112 @@
 #define HX8353E_SETID    0xC3
 #define HX8353E_GETHID   0xd0
 #define HX8353E_SETGAMMA 0xE0
-Screen_HX8353E::Screen_HX8353E() {
-#if defined(__LM4F120H5QR__) || defined(__MSP430F5529__) || defined(__TM4C123GH6PM__) || defined(__TM4C1294NCPDT__) || defined(__TM4C1294XNCZAD__)
-    _pinReset          = 17;
-    _pinDataCommand    = 31;
-    _pinChipSelect     = 13;
-    _pinBacklight      = NULL;
-#else
-#error Platform not supported
-#endif
-}
-Screen_HX8353E::Screen_HX8353E(uint8_t resetPin, uint8_t dataCommandPin, uint8_t chipSelectPin, uint8_t backlightPin)
+
+#define LOW 0x00
+#define HIGH 0x01
+
+#define highByte(w) ((uint8_t)((w) >> 8))   // Extracts the high byte
+#define lowByte(w)  ((uint8_t)((w) & 0xFF)) // Extracts the low byte
+
+
+void _setPoint(uint16_t x1, uint16_t y1, uint16_t colour);
+void _setWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1);
+void _writeRegister(uint8_t command8, uint8_t data8);
+void _writeCommand(uint8_t command8);
+void _writeData(uint8_t data8);
+void _writeData16(uint16_t data16);
+void _writeData88(uint8_t dataHigh8, uint8_t dataLow8);
+void _writeData8888(uint8_t dataHigh8, uint8_t dataLow8, uint8_t data8_3, uint8_t data8_4);
+void _fastFill(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t colour);
+// void _getRawTouch(uint16_t &x, uint16_t &y, uint16_t &z);
+
+uint8_t _pinReset;
+uint32_t _portReset;
+uint8_t _pinDataCommand;
+uint32_t _portDataCommand;
+uint8_t _pinChipSelect;
+uint32_t _portChipSelect;
+uint8_t _pinBacklight;
+uint32_t _portBacklight;
+
+
+uint8_t      _fontX, _fontY, _fontSize;
+uint8_t      _orientation;
+bool         _penSolid, _fontSolid, _flagRead, _flagStorage;
+uint16_t     _screenWidth, _screenHeigth;
+uint8_t      _touchTrim;
+
+
+void digitalWrite(uint32_t _port, uint8_t _pin, uint8_t _val)
 {
+    BSP_GPIO_Write(_port, _pin, _val);
+}
+
+void transfer(uint8_t command8)
+{
+    BSP_SSI_Send(&command8, sizeof(command8));
+}
+
+
+void Screen_HX8353E(
+    uint32_t resetPort, 
+    uint8_t resetPin, 
+    uint32_t dataCommandPort, 
+    uint8_t dataCommandPin, 
+    uint32_t chipSelectPort, 
+    uint8_t chipSelectPin, 
+    uint32_t backlightPort, 
+    uint8_t backlightPin)
+{
+    _portReset = resetPort;
     _pinReset = resetPin;
+    _portDataCommand = dataCommandPort;
     _pinDataCommand = dataCommandPin;
+    _portChipSelect = chipSelectPort;
     _pinChipSelect = chipSelectPin;
+    _portBacklight = backlightPort;
     _pinBacklight = backlightPin;
 };
-void Screen_HX8353E::begin()
+void begin()
 {
 #if defined(__LM4F120H5QR__)
     SPI.setModule(2);
 #endif
-    SPI.begin();
-    SPI.setClockDivider(SPI_CLOCK_DIV2);
-    SPI.setBitOrder(MSBFIRST);
-    SPI.setDataMode(SPI_MODE0);
-    if (_pinReset!=NULL) pinMode(_pinReset, OUTPUT);
-    if (_pinBacklight!=NULL) pinMode(_pinBacklight, OUTPUT);
-    pinMode(_pinDataCommand, OUTPUT);
-    pinMode(_pinChipSelect, OUTPUT);
-    if (_pinBacklight!=NULL) digitalWrite(_pinBacklight, HIGH);
-    if (_pinReset!=NULL) digitalWrite(_pinReset, 1);
-    delay(100);
-    if (_pinReset!=NULL) digitalWrite(_pinReset, 0);
-    delay(50);
-    if (_pinReset!=NULL) digitalWrite(_pinReset, 1);
-    delay(120);
+    // SPI.begin();
+    // SPI.setClockDivider(SPI_CLOCK_DIV2);
+    // SPI.setBitOrder(MSBFIRST);
+    // SPI.setDataMode(SPI_MODE0);
+    // if (_pinReset!=NULL) pinMode(_pinReset, OUTPUT);
+    // if (_pinBacklight!=NULL) pinMode(_pinBacklight, OUTPUT);
+    // pinMode(_pinDataCommand, OUTPUT);
+    // pinMode(_pinChipSelect, OUTPUT);
+    digitalWrite(_portBacklight, _pinBacklight, HIGH);
+    digitalWrite(_portReset, _pinReset, HIGH);
+    SysCtlDelay(100);
+    digitalWrite(_portReset, _pinReset, LOW);
+    SysCtlDelay(50);
+    digitalWrite(_portReset, _pinReset, HIGH);
+    SysCtlDelay(120);
     _writeCommand(HX8353E_SWRESET);
-    delay(150);
+    SysCtlDelay(150);
     _writeCommand(HX8353E_SLPOUT);
-    delay(200);
+    SysCtlDelay(200);
     _writeRegister(HX8353E_GAMSET, 0x04);
     _writeCommand(HX8353E_SETPWCTR);
     _writeData88(0x0A, 0x14);
     _writeCommand(HX8353E_SETSTBA);
     _writeData88(0x0A, 0x00);
     _writeRegister(HX8353E_COLMOD, 0x05);
-    delay(10);
+    SysCtlDelay(10);
     _writeRegister(HX8353E_MADCTL, HX8353E_MADCTL_RGB);
     _writeCommand(HX8353E_CASET);
     _writeData8888(0x00, 0x00, 0x00, 0x79);
     _writeCommand(HX8353E_RASET);
     _writeData8888(0x00, 0x00, 0x00, 0x79);
     _writeCommand(HX8353E_NORON);
-    delay(10);
+    SysCtlDelay(10);
     _writeCommand(HX8353E_DISPON);
-    delay(120);
+    SysCtlDelay(120);
     _writeCommand(HX8353E_RAMWR);
     setBacklight(true);
     setOrientation(0);
@@ -130,25 +179,21 @@ void Screen_HX8353E::begin()
     _fontSolid = true;
     _flagRead  = false;
     _touchTrim = 0;
-    clear();
+    //clear();
 }
-String Screen_HX8353E::WhoAmI()
-{
-    return "LCD MKII BoosterPack";
-}
-void Screen_HX8353E::invert(boolean flag)
+void invert(bool flag)
 {
     _writeCommand(flag ? HX8353E_INVON : HX8353E_INVOFF);
 }
-void Screen_HX8353E::setBacklight(boolean flag)
+void setBacklight(bool flag)
 {
-    if (_pinBacklight!=NULL) digitalWrite(_pinBacklight, flag);
+    digitalWrite(_portBacklight, _pinBacklight, flag);
 }
-void Screen_HX8353E::setDisplay(boolean flag)
+void setDisplay(bool flag)
 {
-    if (_pinBacklight!=NULL) setBacklight(flag);
+    setBacklight(flag);
 }
-void Screen_HX8353E::setOrientation(uint8_t orientation)
+void setOrientation(uint8_t orientation)
 {
     _orientation = orientation % 4;
     _writeCommand(HX8353E_MADCTL);
@@ -167,28 +212,28 @@ void Screen_HX8353E::setOrientation(uint8_t orientation)
             break;
     }
 }
-void Screen_HX8353E::_fastFill(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t colour)
+void _fastFill(uint16_t x1, uint16_t y1, uint16_t x2, uint16_t y2, uint16_t colour)
 {
-    if (x1 > x2) _swap(x1, x2);
-    if (y1 > y2) _swap(y1, y2);
-    _setWindow(x1, y1, x2, y2);
-    digitalWrite(_pinDataCommand, HIGH);
-    digitalWrite(_pinChipSelect, LOW);
-    uint8_t hi = highByte(colour);
-    uint8_t lo = lowByte(colour);
-    for (uint32_t t=(uint32_t)(y2-y1+1)*(x2-x1+1); t>0; t--) {
-        SPI.transfer(hi);
-        SPI.transfer(lo);
-    }
-    digitalWrite(_pinChipSelect, HIGH);
+    // if (x1 > x2) _swap(x1, x2);
+    // if (y1 > y2) _swap(y1, y2);
+    // _setWindow(x1, y1, x2, y2);
+    // digitalWrite(_portDataCommand, _pinDataCommand, HIGH);
+    // digitalWrite(_portChipSelect, _pinChipSelect, LOW);
+    // uint8_t hi = highByte(colour);
+    // uint8_t lo = lowByte(colour);
+    // for (uint32_t t=(uint32_t)(y2-y1+1)*(x2-x1+1); t>0; t--) {
+    //     transfer(hi);
+    //     transfer(lo);
+    // }
+    // digitalWrite(_portChipSelect, _pinChipSelect, HIGH);
 }
-void Screen_HX8353E::_setPoint(uint16_t x1, uint16_t y1, uint16_t colour)
+void _setPoint(uint16_t x1, uint16_t y1, uint16_t colour)
 {
     if( (x1 < 0) || (x1 >= screenSizeX()) || (y1 < 0) || (y1 >= screenSizeY()) ) return;
     _setWindow(x1, y1, x1+1, y1+1);
     _writeData16(colour);
 }
-void Screen_HX8353E::_setWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
+void _setWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t y1)
 {
     switch (_orientation) {
         case 0:
@@ -226,51 +271,81 @@ void Screen_HX8353E::_setWindow(uint16_t x0, uint16_t y0, uint16_t x1, uint16_t 
     _writeData16(y1);
     _writeCommand(HX8353E_RAMWR);
 }
-void Screen_HX8353E::_writeRegister(uint8_t command8, uint8_t data8)
+void _writeRegister(uint8_t command8, uint8_t data8)
 {
     _writeCommand(command8);
     _writeData(data8);
 }
-void Screen_HX8353E::_writeCommand(uint8_t command8)
+void _writeCommand(uint8_t command8)
 {
-    digitalWrite(_pinDataCommand, LOW);
-    digitalWrite(_pinChipSelect, LOW);
-    SPI.transfer(command8);
-    digitalWrite(_pinChipSelect, HIGH);
+    digitalWrite(_portDataCommand, _pinDataCommand, LOW);
+    digitalWrite(_portChipSelect, _pinChipSelect, LOW);
+    transfer(command8);
+    digitalWrite(_portChipSelect, _pinChipSelect, HIGH);
 }
-void Screen_HX8353E::_writeData(uint8_t data8)
+void _writeData(uint8_t data8)
 {
-    digitalWrite(_pinDataCommand, HIGH);
-    digitalWrite(_pinChipSelect, LOW);
-    SPI.transfer(data8);
-    digitalWrite(_pinChipSelect, HIGH);
+    digitalWrite(_portDataCommand, _pinDataCommand, HIGH);
+    digitalWrite(_portChipSelect, _pinChipSelect, LOW);
+    transfer(data8);
+    digitalWrite(_portChipSelect, _pinChipSelect, HIGH);
 }
-void Screen_HX8353E::_writeData16(uint16_t data16)
+void _writeData16(uint16_t data16)
 {
-    digitalWrite(_pinDataCommand, HIGH);
-    digitalWrite(_pinChipSelect, LOW);
-    SPI.transfer(highByte(data16));
-    SPI.transfer(lowByte(data16));
-    digitalWrite(_pinChipSelect, HIGH);
+    digitalWrite(_portDataCommand, _pinDataCommand, HIGH);
+    digitalWrite(_portChipSelect, _pinChipSelect, LOW);
+    transfer(highByte(data16));
+    transfer(lowByte(data16));
+    digitalWrite(_portChipSelect, _pinChipSelect, HIGH);
 }
-void Screen_HX8353E::_writeData88(uint8_t dataHigh8, uint8_t dataLow8)
+void _writeData88(uint8_t dataHigh8, uint8_t dataLow8)
 {
-    digitalWrite(_pinDataCommand, HIGH);
-    digitalWrite(_pinChipSelect, LOW);
-    SPI.transfer(dataHigh8);
-    SPI.transfer(dataLow8);
-    digitalWrite(_pinChipSelect, HIGH);
+    digitalWrite(_portDataCommand, _pinDataCommand, HIGH);
+    digitalWrite(_portChipSelect, _pinChipSelect, LOW);
+    transfer(dataHigh8);
+    transfer(dataLow8);
+    digitalWrite(_portChipSelect, _pinChipSelect, HIGH);
 }
-void Screen_HX8353E::_writeData8888(uint8_t dataHigh8, uint8_t dataLow8, uint8_t data8_3, uint8_t data8_4)
+void _writeData8888(uint8_t dataHigh8, uint8_t dataLow8, uint8_t data8_3, uint8_t data8_4)
 {
     _writeData(dataHigh8);
     _writeData(dataLow8);
     _writeData(data8_3);
     _writeData(data8_4);
 }
-void Screen_HX8353E::_getRawTouch(uint16_t &x0, uint16_t &y0, uint16_t &z0)
+// void _getRawTouch(uint16_t &x0, uint16_t &y0, uint16_t &z0)
+// {
+//     x0 = 0;
+//     y0 = 0;
+//     z0 = 0;
+// }
+uint16_t screenSizeX()
 {
-    x0 = 0;
-    y0 = 0;
-    z0 = 0;
+    switch (_orientation) {
+        case 0:
+        case 2:
+            return _screenWidth;
+            break;
+        case 1:
+        case 3:
+            return _screenHeigth;
+            break;
+    }
+
+    return 0;
+}
+uint16_t screenSizeY()
+{
+    switch (_orientation) {
+        case 0:
+        case 2:
+            return _screenHeigth;
+            break;
+        case 1:
+        case 3:
+            return _screenWidth;
+            break;
+    }
+    
+    return 0;
 }

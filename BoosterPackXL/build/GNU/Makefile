@@ -87,7 +87,7 @@ C_SRCS := \
 	bsp_gpio.c  \
 	bsp_uart.c \
 	bsp_ssi.c  \
-	st7735.c  \
+	HX8353E.c  \
 	uartstdio.c 
 
 DRIVERLIB_SRCS := \
@@ -133,7 +133,8 @@ ASM_FPU   := -defsym=__FPU_PRESENT=1
 # GNU-ARM toolset (NOTE: You need to adjust to your machine)
 # see https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
 #
-GNU_ARM := C:/"Program Files (x86)"/"Arm GNU Toolchain arm-none-eabi"/"14.2 rel1"/
+#GNU_ARM := C:/"Program Files (x86)"/"Arm GNU Toolchain arm-none-eabi"/"14.2 rel1"/
+GNU_ARM := /usr/
 
 
 CC    := $(GNU_ARM)/bin/arm-none-eabi-gcc
