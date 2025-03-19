@@ -84,7 +84,11 @@ C_SRCS := \
 	main.c \
 	startup_gcc.c \
   	system_TM4C129.c \
-	bsp_uart.c 
+	bsp_gpio.c  \
+	bsp_uart.c \
+	bsp_ssi.c  \
+	st7735.c  \
+	uartstdio.c 
 
 DRIVERLIB_SRCS := \
 	adc.c \

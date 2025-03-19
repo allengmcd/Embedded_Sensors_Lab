@@ -65,8 +65,6 @@
 #define FLASH_PP_MAINSS_S       16
 #endif
 
-#define gcc
-
 //*****************************************************************************
 //
 // This macro converts the XTAL value provided in the ui32Config parameter to

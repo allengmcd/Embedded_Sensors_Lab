@@ -3,6 +3,8 @@
 
 #include "fonts.h"
 #include "includes.h"
+#include "driverlib/sysctl.h"
+#include "bsp_gpio.h"
 #include "bsp_ssi.h"
 
 #define ST7735_MADCTL_MY  0x80
@@ -14,15 +16,18 @@
 #define ST7735_MADCTL_MH  0x04
 
 /*** Redefine if necessary ***/
-#define ST7735_SPI_PORT hspi1
-extern SPI_HandleTypeDef ST7735_SPI_PORT;
+// #define ST7735_SPI_PORT hspi1
+// extern SPI_HandleTypeDef ST7735_SPI_PORT;
 
-#define ST7735_RES_Pin       GPIO_PIN_7
-#define ST7735_RES_GPIO_Port GPIOC
-#define ST7735_CS_Pin        GPIO_PIN_6
-#define ST7735_CS_GPIO_Port  GPIOB
-#define ST7735_DC_Pin        GPIO_PIN_9
-#define ST7735_DC_GPIO_Port  GPIOA
+#define ST7735_RES_Pin       GPIO_PIN_3
+#define ST7735_RES_GPIO_Port GPIO_PORTH_BASE
+#define ST7735_CS_Pin        GPIO_PIN_2
+#define ST7735_CS_GPIO_Port  GPIO_PORTN_BASE
+#define ST7735_DC_Pin        GPIO_PIN_3
+#define ST7735_DC_GPIO_Port  GPIO_PORTL_BASE
+
+#define GPIO_PIN_SET 1
+#define GPIO_PIN_RESET 0
 
 // AliExpress/eBay 1.8" display, default orientation
 /*

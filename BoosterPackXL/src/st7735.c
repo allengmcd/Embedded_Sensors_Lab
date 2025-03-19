@@ -85,29 +85,37 @@ static const uint8_t
       100 };                  //     100 ms delay
 
 static void ST7735_Select() {
-    HAL_GPIO_WritePin(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_RESET);
+    //HAL_GPIO_WritePin(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_RESET);
+    BSP_GPIO_Write(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_RESET);
+    
 }
 
 void ST7735_Unselect() {
-    HAL_GPIO_WritePin(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_SET);
+    //HAL_GPIO_WritePin(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_SET);
+    BSP_GPIO_Write(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_SET);
 }
 
 static void ST7735_Reset() {
-    HAL_GPIO_WritePin(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_RESET);
-    HAL_Delay(5);
-    HAL_GPIO_WritePin(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_SET);
+    //HAL_GPIO_WritePin(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_RESET);
+    BSP_GPIO_Write(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_RESET);
+    //HAL_Delay(5);
+    SysCtlDelay(5);
+    //HAL_GPIO_WritePin(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_SET);
+    BSP_GPIO_Write(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_SET);
 }
 
 static void ST7735_WriteCommand(uint8_t cmd) {
-    HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_RESET);
-    HAL_SPI_Transmit(&ST7735_SPI_PORT, &cmd, sizeof(cmd), HAL_MAX_DELAY);
+    //HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_RESET);
+    BSP_GPIO_Write(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_RESET);
+    //HAL_SPI_Transmit(&ST7735_SPI_PORT, &cmd, sizeof(cmd), HAL_MAX_DELAY);
     BSP_SSI_Send(&cmd, sizeof(cmd));
 }
 
 static void ST7735_WriteData(uint8_t* buff, size_t buff_size) {
-    HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
-    HAL_SPI_Transmit(&ST7735_SPI_PORT, buff, buff_size, HAL_MAX_DELAY);
-    BSP_SSI_Send(&buff, buff_size);
+    //HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
+    BSP_GPIO_Write(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
+    //HAL_SPI_Transmit(&ST7735_SPI_PORT, buff, buff_size, HAL_MAX_DELAY);
+    BSP_SSI_Send(buff, buff_size);
 
 }
 
@@ -132,7 +140,8 @@ static void ST7735_ExecuteCommandList(const uint8_t *addr) {
         if(ms) {
             ms = *addr++;
             if(ms == 255) ms = 500;
-            HAL_Delay(ms);
+            //HAL_Delay(ms);
+            SysCtlDelay(ms);
         }
     }
 }
@@ -247,10 +256,12 @@ void ST7735_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16
     ST7735_SetAddressWindow(x, y, x+w-1, y+h-1);
 
     uint8_t data[] = { color >> 8, color & 0xFF };
-    HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
+    //HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
+    BSP_GPIO_Write(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
     for(y = h; y > 0; y--) {
         for(x = w; x > 0; x--) {
-            HAL_SPI_Transmit(&ST7735_SPI_PORT, data, sizeof(data), HAL_MAX_DELAY);
+            //HAL_SPI_Transmit(&ST7735_SPI_PORT, data, sizeof(data), HAL_MAX_DELAY);
+            BSP_SSI_Send(data, sizeof(data));
         }
     }
 
@@ -272,9 +283,11 @@ void ST7735_FillRectangleFast(uint16_t x, uint16_t y, uint16_t w, uint16_t h, ui
     for(x = 0; x < w; ++x)
     	memcpy(line + x * sizeof(pixel), pixel, sizeof(pixel));
 
-    HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
+    //HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
+    BSP_GPIO_Write(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
     for(y = h; y > 0; y--)
-        HAL_SPI_Transmit(&ST7735_SPI_PORT, line, w * sizeof(pixel), HAL_MAX_DELAY);
+        //HAL_SPI_Transmit(&ST7735_SPI_PORT, line, w * sizeof(pixel), HAL_MAX_DELAY);
+        BSP_SSI_Send(line, w * sizeof(pixel));
 
     free(line);
     ST7735_Unselect();

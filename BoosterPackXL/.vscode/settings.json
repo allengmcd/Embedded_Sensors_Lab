@@ -1,6 +1,7 @@
 {
     "files.associations": {
         "bsp_uart.h": "c",
-        "rom_map.h": "c"
+        "rom_map.h": "c",
+        "st7735.h": "c"
     }
 }

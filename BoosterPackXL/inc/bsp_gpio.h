@@ -8,6 +8,6 @@
 #include "driverlib/sysctl.h"
 
 void BSP_GPIO_Init(void);
-void BSP_GPIO_Write(const uint8_t *pui8Buffer, uint32_t ui32Count);
+void BSP_GPIO_Write(uint32_t ui32Port, uint8_t ui8Pins, uint8_t ui8Val);
 
 #endif

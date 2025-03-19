@@ -13,6 +13,7 @@
 #include "driverlib/ssi.h"
 #include "driverlib/sysctl.h"
 #include "driverlib/uart.h"
+#include "uartstdio.h"
 
 
 void BSP_SSI_Init(void);

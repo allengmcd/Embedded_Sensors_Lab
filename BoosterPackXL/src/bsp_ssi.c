@@ -6,7 +6,7 @@
 // The variable g_ui32SysClock contains the system clock frequency in Hz.
 //
 //****************************************************************************
-uint32_t g_ui32SysClock;
+uint32_t g_ui32SysClock_ssi;
 
 //*****************************************************************************
 //
@@ -25,44 +25,21 @@ volatile uint32_t g_bReceiveFlag = 0;
 
 void BSP_SSI_Init(void)
 {
-    uint32_t pui32DataTx[NUM_SSI_DATA];
+    // uint32_t pui32DataTx[NUM_SSI_DATA];
     uint32_t pui32DataRx[NUM_SSI_DATA];
-    uint32_t ui32Index;
+    // uint32_t ui32Index;
 
     //
     // Run from the PLL at 120 MHz.
     // Note: SYSCTL_CFG_VCO_240 is a new setting provided in TivaWare 2.2.x and
     // later to better reflect the actual VCO speed due to SYSCTL#22.
     //
-    g_ui32SysClock = SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ |
+    g_ui32SysClock_ssi = SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ |
                                              SYSCTL_OSC_MAIN |
                                              SYSCTL_USE_PLL |
                                              SYSCTL_CFG_VCO_240), 120000000);
 
-    //
-    // Set up the serial console to use for displaying messages.
-    //
-    //
-    // Enable the GPIO Peripheral used by the UART.
-    //
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_GPIOA);
 
-    //
-    // Enable UART0.
-    //
-    ROM_SysCtlPeripheralEnable(SYSCTL_PERIPH_UART0);
-
-    //
-    // Configure GPIO Pins for UART mode.
-    //
-    ROM_GPIOPinConfigure(GPIO_PA0_U0RX);
-    ROM_GPIOPinConfigure(GPIO_PA1_U0TX);
-    ROM_GPIOPinTypeUART(GPIO_PORTA_BASE, GPIO_PIN_0 | GPIO_PIN_1);
-
-    //
-    // Initialize the UART for console I/O.
-    //
-    UARTStdioConfig(0, 115200, g_ui32SysClock);
 
 
     //
@@ -141,13 +118,13 @@ void BSP_SSI_Init(void)
     // capture data on.  Please reference the device datasheet for more
     // information on the different SPI modes.
     //
-    SSIConfigSetExpClk(SSI0_BASE, g_ui32SysClock, SSI_FRF_MOTO_MODE_0,
+    SSIConfigSetExpClk(SSI0_BASE, g_ui32SysClock_ssi, SSI_FRF_MOTO_MODE_0,
                            SSI_MODE_MASTER, 2000000, 8);
 
     //
     // Configure and enable the SSI1 port for SPI slave mode.
     //
-    SSIConfigSetExpClk(SSI1_BASE, g_ui32SysClock, SSI_FRF_MOTO_MODE_0,
+    SSIConfigSetExpClk(SSI1_BASE, g_ui32SysClock_ssi, SSI_FRF_MOTO_MODE_0,
                            SSI_MODE_SLAVE, 2000000, 8);
 
     //
