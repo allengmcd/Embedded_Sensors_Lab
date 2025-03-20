@@ -1,0 +1,1 @@
+./home/allenmcdermott/Programs/TI/uniflash_8.6.0/dslite.sh flash --config=ccxml-file -f dbg/BoosterPackXL.bin

@@ -107,7 +107,7 @@ void digitalWrite(uint32_t _port, uint8_t _pin, uint8_t _val)
 
 void transfer(uint8_t command8)
 {
-    BSP_SSI_Send(&command8, sizeof(command8));
+    BSP_SSI_Send(&command8, 1);
 }
 
 
@@ -135,6 +135,7 @@ void begin()
 #if defined(__LM4F120H5QR__)
     SPI.setModule(2);
 #endif
+
     // SPI.begin();
     // SPI.setClockDivider(SPI_CLOCK_DIV2);
     // SPI.setBitOrder(MSBFIRST);
@@ -143,12 +144,12 @@ void begin()
     // if (_pinBacklight!=NULL) pinMode(_pinBacklight, OUTPUT);
     // pinMode(_pinDataCommand, OUTPUT);
     // pinMode(_pinChipSelect, OUTPUT);
-    digitalWrite(_portBacklight, _pinBacklight, HIGH);
-    digitalWrite(_portReset, _pinReset, HIGH);
+    // digitalWrite(_portBacklight, _pinBacklight, HIGH);
+    digitalWrite(_portReset, _pinReset, _pinReset);
     SysCtlDelay(100);
     digitalWrite(_portReset, _pinReset, LOW);
     SysCtlDelay(50);
-    digitalWrite(_portReset, _pinReset, HIGH);
+    digitalWrite(_portReset, _pinReset, _pinReset);
     SysCtlDelay(120);
     _writeCommand(HX8353E_SWRESET);
     SysCtlDelay(150);
@@ -281,30 +282,30 @@ void _writeCommand(uint8_t command8)
     digitalWrite(_portDataCommand, _pinDataCommand, LOW);
     digitalWrite(_portChipSelect, _pinChipSelect, LOW);
     transfer(command8);
-    digitalWrite(_portChipSelect, _pinChipSelect, HIGH);
+    digitalWrite(_portChipSelect, _pinChipSelect, _pinChipSelect);
 }
 void _writeData(uint8_t data8)
 {
-    digitalWrite(_portDataCommand, _pinDataCommand, HIGH);
+    digitalWrite(_portDataCommand, _pinDataCommand, _pinDataCommand);
     digitalWrite(_portChipSelect, _pinChipSelect, LOW);
     transfer(data8);
-    digitalWrite(_portChipSelect, _pinChipSelect, HIGH);
+    digitalWrite(_portChipSelect, _pinChipSelect, _pinChipSelect);
 }
 void _writeData16(uint16_t data16)
 {
-    digitalWrite(_portDataCommand, _pinDataCommand, HIGH);
+    digitalWrite(_portDataCommand, _pinDataCommand, _pinDataCommand);
     digitalWrite(_portChipSelect, _pinChipSelect, LOW);
     transfer(highByte(data16));
     transfer(lowByte(data16));
-    digitalWrite(_portChipSelect, _pinChipSelect, HIGH);
+    digitalWrite(_portChipSelect, _pinChipSelect, _pinChipSelect);
 }
 void _writeData88(uint8_t dataHigh8, uint8_t dataLow8)
 {
-    digitalWrite(_portDataCommand, _pinDataCommand, HIGH);
+    digitalWrite(_portDataCommand, _pinDataCommand, _pinDataCommand);
     digitalWrite(_portChipSelect, _pinChipSelect, LOW);
     transfer(dataHigh8);
     transfer(dataLow8);
-    digitalWrite(_portChipSelect, _pinChipSelect, HIGH);
+    digitalWrite(_portChipSelect, _pinChipSelect, _pinChipSelect);
 }
 void _writeData8888(uint8_t dataHigh8, uint8_t dataLow8, uint8_t data8_3, uint8_t data8_4)
 {

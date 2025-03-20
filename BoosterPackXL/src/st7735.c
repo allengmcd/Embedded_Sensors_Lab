@@ -92,7 +92,7 @@ static void ST7735_Select() {
 
 void ST7735_Unselect() {
     //HAL_GPIO_WritePin(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_SET);
-    BSP_GPIO_Write(ST7735_CS_GPIO_Port, ST7735_CS_Pin, GPIO_PIN_SET);
+    BSP_GPIO_Write(ST7735_CS_GPIO_Port, ST7735_CS_Pin, ST7735_CS_Pin);
 }
 
 static void ST7735_Reset() {
@@ -101,7 +101,7 @@ static void ST7735_Reset() {
     //HAL_Delay(5);
     SysCtlDelay(5);
     //HAL_GPIO_WritePin(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_SET);
-    BSP_GPIO_Write(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_SET);
+    BSP_GPIO_Write(ST7735_RES_GPIO_Port, ST7735_RES_Pin, ST7735_RES_Pin);
 }
 
 static void ST7735_WriteCommand(uint8_t cmd) {
@@ -113,7 +113,7 @@ static void ST7735_WriteCommand(uint8_t cmd) {
 
 static void ST7735_WriteData(uint8_t* buff, size_t buff_size) {
     //HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
-    BSP_GPIO_Write(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
+    BSP_GPIO_Write(ST7735_DC_GPIO_Port, ST7735_DC_Pin, ST7735_DC_Pin);
     //HAL_SPI_Transmit(&ST7735_SPI_PORT, buff, buff_size, HAL_MAX_DELAY);
     BSP_SSI_Send(buff, buff_size);
 
