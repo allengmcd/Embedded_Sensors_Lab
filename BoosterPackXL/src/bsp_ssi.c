@@ -66,7 +66,6 @@ void BSP_SSI_Send(const uint8_t *pui8Buffer, uint32_t ui32Count)
 
     for(ui32Index = 0; ui32Index < ui32Count; ui32Index++)
     {
-        UARTprintf("Hex (lowercase): %x\n  ", pui8Buffer[ui32Index]);
         SSIDataPut(SSI2_BASE, pui8Buffer[ui32Index]);
     }
 

@@ -4,6 +4,70 @@
 #include "string.h"
 
 #define DELAY 0x80
+///
+#define HX8353E_WIDTH  128
+#define HX8353E_HEIGHT 128
+#define HX8353E_MADCTL_MY  0x80
+#define HX8353E_MADCTL_MX  0x40
+#define HX8353E_MADCTL_MV  0x20
+#define HX8353E_MADCTL_ML  0x10
+#define HX8353E_MADCTL_RGB 0x08
+#define HX8353E_MADCTL_MH  0x04
+#define HX8353E_NOP     0x00
+#define HX8353E_SWRESET 0x01
+#define HX8353E_RDDID   0x04
+#define HX8353E_RDDST   0x09
+#define HX8353E_SLPIN   0x10
+#define HX8353E_SLPOUT  0x11
+#define HX8353E_PTLON   0x12
+#define HX8353E_NORON   0x13
+#define HX8353E_INVOFF  0x20
+#define HX8353E_INVON   0x21
+#define HX8353E_GAMSET  0x26
+#define HX8353E_DISPOFF 0x28
+#define HX8353E_DISPON  0x29
+#define HX8353E_CASET   0x2A
+#define HX8353E_RASET   0x2B
+#define HX8353E_RAMWR   0x2C
+#define HX8353E_RGBSET  0x2d
+#define HX8353E_RAMRD   0x2E
+#define HX8353E_PTLAR   0x30
+#define HX8353E_MADCTL  0x36
+#define HX8353E_COLMOD  0x3A
+#define HX8353E_SETPWCTR 0xB1
+#define HX8353E_SETDISPL 0xB2
+#define HX8353E_FRMCTR3  0xB3
+#define HX8353E_SETCYC   0xB4
+#define HX8353E_SETBGP   0xb5
+#define HX8353E_SETVCOM  0xB6
+#define HX8353E_SETSTBA  0xC0
+#define HX8353E_SETID    0xC3
+#define HX8353E_GETHID   0xd0
+#define HX8353E_SETGAMMA 0xE0
+
+static const uint8_t init_test[] = {
+  17,
+  HX8353E_SWRESET, 0,
+  DELAY, 150,
+  HX8353E_SLPOUT, 0,
+  DELAY, 200,
+  HX8353E_GAMSET, 1, 0x04,
+  HX8353E_SETPWCTR, 2, 0x0A, 0x14,
+  HX8353E_SETSTBA, 2, 0x0A, 0x00,
+  HX8353E_COLMOD, 1, 0x05,
+  DELAY, 10,
+  // SysCtlDelay(10);
+  HX8353E_MADCTL, 1, HX8353E_MADCTL_RGB,
+  // _writeRegister(HX8353E_MADCTL, HX8353E_MADCTL_RGB);
+  HX8353E_CASET, 4, 0x00, 0x00, 0x00, 0x79,
+  HX8353E_RASET, 4, 0x00, 0x00, 0x00, 0x79,
+  HX8353E_NORON, 0,
+  DELAY, 10,
+  HX8353E_DISPON, 0,
+  DELAY, 120,
+  HX8353E_RAMWR, 0
+};
+
 
 // based on Adafruit ST7735 library for Arduino
 static const uint8_t
@@ -99,7 +163,7 @@ static void ST7735_Reset() {
     //HAL_GPIO_WritePin(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_RESET);
     BSP_GPIO_Write(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_RESET);
     //HAL_Delay(5);
-    SysCtlDelay(5);
+    SysCtlDelay((SysCtlClockGet() / 3 / 1000) * 5);
     //HAL_GPIO_WritePin(ST7735_RES_GPIO_Port, ST7735_RES_Pin, GPIO_PIN_SET);
     BSP_GPIO_Write(ST7735_RES_GPIO_Port, ST7735_RES_Pin, ST7735_RES_Pin);
 }
@@ -108,13 +172,15 @@ static void ST7735_WriteCommand(uint8_t cmd) {
     //HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_RESET);
     BSP_GPIO_Write(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_RESET);
     //HAL_SPI_Transmit(&ST7735_SPI_PORT, &cmd, sizeof(cmd), HAL_MAX_DELAY);
-    BSP_SSI_Send(&cmd, sizeof(cmd));
+    BSP_SSI_Send(&cmd, 1);
 }
 
 static void ST7735_WriteData(uint8_t* buff, size_t buff_size) {
     //HAL_GPIO_WritePin(ST7735_DC_GPIO_Port, ST7735_DC_Pin, GPIO_PIN_SET);
     BSP_GPIO_Write(ST7735_DC_GPIO_Port, ST7735_DC_Pin, ST7735_DC_Pin);
     //HAL_SPI_Transmit(&ST7735_SPI_PORT, buff, buff_size, HAL_MAX_DELAY);
+    UARTprintf("buff size: %d, Data: %x\n  ",buff_size, buff[0]);
+    
     BSP_SSI_Send(buff, buff_size);
 
 }
@@ -126,22 +192,22 @@ static void ST7735_ExecuteCommandList(const uint8_t *addr) {
     numCommands = *addr++;
     while(numCommands--) {
         uint8_t cmd = *addr++;
-        ST7735_WriteCommand(cmd);
-
-        numArgs = *addr++;
-        // If high bit set, delay follows args
-        ms = numArgs & DELAY;
-        numArgs &= ~DELAY;
-        if(numArgs) {
-            ST7735_WriteData((uint8_t*)addr, numArgs);
-            addr += numArgs;
+        if(cmd == DELAY)
+        {
+          ms = *addr++;
+          ms = ms;
+          UARTprintf("SysCtlDelay: %d\n  ",ms);
+          SysCtlDelay((SysCtlClockGet() / 3 / 1000) * ms);
         }
+        else
+        {
+          ST7735_WriteCommand(cmd);
 
-        if(ms) {
-            ms = *addr++;
-            if(ms == 255) ms = 500;
-            //HAL_Delay(ms);
-            SysCtlDelay(ms);
+          numArgs = *addr++;
+          if(numArgs) {
+              ST7735_WriteData((uint8_t*)addr, numArgs);
+              addr += numArgs;
+          }
         }
     }
 }
@@ -164,10 +230,11 @@ static void ST7735_SetAddressWindow(uint8_t x0, uint8_t y0, uint8_t x1, uint8_t 
 
 void ST7735_Init() {
     ST7735_Select();
-    ST7735_Reset();
-    ST7735_ExecuteCommandList(init_cmds1);
-    ST7735_ExecuteCommandList(init_cmds2);
-    ST7735_ExecuteCommandList(init_cmds3);
+    ST7735_Reset();//init_test
+    ST7735_ExecuteCommandList(init_test);
+    // ST7735_ExecuteCommandList(init_cmds1);
+    // ST7735_ExecuteCommandList(init_cmds2);
+    // ST7735_ExecuteCommandList(init_cmds3);
     ST7735_Unselect();
 }
 

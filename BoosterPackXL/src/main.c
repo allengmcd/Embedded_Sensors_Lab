@@ -59,10 +59,12 @@ int main(void)
     // pui32DataTx[3] = 'I';
 
     // BSP_SSI_Send(pui32DataTx, 4);
+    ST7735_FillScreen(ST7735_RED);
 
     uint32_t counter = 0;
     while(1)
     {
+        
         SysCtlDelay(100);
         //UARTprintf("Loop #%d...\n  ", counter);
         counter++;
