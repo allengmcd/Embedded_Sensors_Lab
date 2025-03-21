@@ -87,7 +87,7 @@ C_SRCS := \
 	bsp_gpio.c  \
 	bsp_uart.c \
 	bsp_ssi.c  \
-	HX8353E.c  \
+	st7735.c  \
 	uartstdio.c 
 
 DRIVERLIB_SRCS := \

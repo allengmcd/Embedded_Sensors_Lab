@@ -1,21 +1,8 @@
 #include "bsp_uart.h"
 
 
-void BSP_UART_Init(void)
+void BSP_UART_Init(uint32_t g_ui32SysClock)
 {
-    uint32_t g_ui32SysClock;
-
-    //
-    // Run from the PLL at 120 MHz.
-    // Note: SYSCTL_CFG_VCO_240 is a new setting provided in TivaWare 2.2.x and
-    // later to better reflect the actual VCO speed due to SYSCTL#22.
-    //
-    g_ui32SysClock = SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ |
-        SYSCTL_OSC_MAIN |
-        SYSCTL_USE_PLL |
-        SYSCTL_CFG_VCO_240), 120000000);;
-
-            
     //
     // Enable the GPIO port that is used for the on-board LED.
     //

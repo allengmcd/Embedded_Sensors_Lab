@@ -1,0 +1,24 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Cortex Debug",
+            "cwd": "${workspaceFolder}/BoosterPackXL/build/GNU/dbg/",
+            "executable": "./BoosterPack.elf",
+            "request": "launch",
+            "type": "cortex-debug",
+            "runToEntryPoint": "main",
+            "servertype": "openocd",
+            "configFiles": [
+                "./interface/ti-icdi.cfg",
+                "./board/ek-tm4c1294xl.cfg"
+            ],
+            "searchDir": [
+                "/usr/share/openocd/scripts"
+            ]
+        }
+    ]
+}

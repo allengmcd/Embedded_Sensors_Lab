@@ -14,7 +14,7 @@
 #include "driverlib/uart.h"
 #include "uartstdio.h"
 
-void BSP_UART_Init(void);
+void BSP_UART_Init(uint32_t g_ui32SysClock);
 void BSP_UART_Send(const uint8_t *pui8Buffer, uint32_t ui32Count);
 
 
