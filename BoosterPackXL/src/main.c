@@ -4,6 +4,7 @@
 #include "bsp_uart.h"
 #include "bsp_ssi.h"
 #include "st7735_2.h"
+#include "game_of_life.h"
 
 #define PART_TM4C1294NCPDT
 
@@ -61,12 +62,16 @@ int main(void)
     // BSP_SSI_Send(pui32DataTx, 4);
     // ST7735_FillScreen(ST7735_RED);
     BSP_LCD_FillScreen(BSP_LCD_Color565(0, 0, 0));
+    BSP_LCD_FillScreen(BSP_LCD_Color565(0, 200, 0));
+
+    golInit();
     
     uint32_t counter = 0;
     while(1)
     {
-        
-        SysCtlDelay(100);
+    nextGeneration();
+        //BSP_LCD_DrawPixel(64,64,BSP_LCD_Color565(0,0,200));
+        //SysCtlDelay(100);
         //UARTprintf("Loop #%d...\n  ", counter);
         counter++;
     }

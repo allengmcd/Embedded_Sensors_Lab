@@ -1,0 +1,126 @@
+#include "game_of_life.h"
+
+#define WIDTH  128
+#define HEIGHT 128
+#define BITS_PER_BYTE 8
+
+uint8_t gol_Grid[HEIGHT][WIDTH / BITS_PER_BYTE] = {0};  // 2D bit array
+
+
+void seed_rand() {
+    srand(SysCtlClockGet());  // Seed with system clock
+}
+
+uint8_t get_random_bit() {
+    return (rand() % 4) != 0;  // 75% chance for 1, 25% for 0
+}
+
+void set_cell(int x, int y, int state) {
+    if (state)
+        gol_Grid[y][x / BITS_PER_BYTE] |= (1 << (x % BITS_PER_BYTE));
+    else
+        gol_Grid[y][x / BITS_PER_BYTE] &= ~(1 << (x % BITS_PER_BYTE));
+}
+
+int get_cell(int x, int y) {
+    x = (x + WIDTH) % WIDTH;   // Wrap around horizontally
+    y = (y + HEIGHT) % HEIGHT; // Wrap around vertically
+    return (gol_Grid[y][x / BITS_PER_BYTE] >> (x % BITS_PER_BYTE)) & 1;
+}
+
+void randomizeBoard()
+{
+    for(int i = 0; i < WIDTH; i++)
+    {
+        for(int j = 0; j < HEIGHT; j++)
+        {
+            uint8_t random_bit = get_random_bit();
+            set_cell(i, j, random_bit);
+            if(random_bit == 0)
+            {
+                BSP_LCD_DrawPixel(i,j,BSP_LCD_Color565(0,0,0));
+            }
+            else{
+                BSP_LCD_DrawPixel(i,j,BSP_LCD_Color565(200,0,0));
+            }
+        }
+    }
+}
+
+
+void golInit()
+{
+    seed_rand();
+    randomizeBoard();
+}
+
+void nextGeneration()
+{
+    for(int i = 0; i < WIDTH; i++)
+    {
+        for(int j = 0; j < HEIGHT; j++)
+        {
+            int cellState = get_cell(i, j);
+            int totalNeighbors = 0;
+
+            // Top Left
+            totalNeighbors += get_cell(i-1, j+1);
+
+            // Top
+            totalNeighbors += get_cell(i, j+1);
+
+            // Top Right
+            totalNeighbors += get_cell(i+1, j+1);
+
+            // Left
+            totalNeighbors += get_cell(i-1, j);
+
+            // Right
+            totalNeighbors += get_cell(i+1, j);
+
+            // Bottom Left
+            totalNeighbors += get_cell(i-1, j-1);
+
+            // Bottom
+            totalNeighbors += get_cell(i, j-1);
+
+            // Bottom Right
+            totalNeighbors += get_cell(i+1, j-1);
+
+            //UARTprintf("x: %d    y: %d     totalNeighbors: %d      state: %d      \n  ", i, j, totalNeighbors, cellState);
+            if((totalNeighbors < 2 || totalNeighbors > 3) && cellState == 1)
+            {
+                //UARTprintf("Cell died \n  ");
+                set_cell(i, j, 0);
+                BSP_LCD_DrawPixel(i,j,BSP_LCD_Color565(0,0,0));
+            }
+            else if(totalNeighbors == 3 && cellState == 0)
+            {
+                //UARTprintf("totalNeighbors == 3 cellState==0  \n  ");
+                set_cell(i, j, 1);
+                
+                BSP_LCD_DrawPixel(i,j,BSP_LCD_Color565(0,200,0));
+            }
+            else if((totalNeighbors == 2 || totalNeighbors == 3) && cellState == 1)
+            {
+                set_cell(i, j, 1);
+                if(totalNeighbors == 2)
+                {
+                   // UARTprintf("totalNeighbors == 2\n  ");
+                    BSP_LCD_DrawPixel(i,j,BSP_LCD_Color565(0,0,200));
+                }
+                else
+                {
+                    //UARTprintf("totalNeighbors == 3 \n  ");
+                    BSP_LCD_DrawPixel(i,j,BSP_LCD_Color565(200,0,0));
+                }
+            }
+            else
+            {
+                //UARTprintf("else \n  ");
+                set_cell(i, j, 0);
+                BSP_LCD_DrawPixel(i,j,BSP_LCD_Color565(0,0,0));
+            }
+        }
+    }
+}

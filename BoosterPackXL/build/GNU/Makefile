@@ -89,6 +89,7 @@ C_SRCS := \
 	bsp_ssi.c  \
 	bsp_utils.c  \
 	st7735_2.c  \
+	game_of_life.c  \
 	uartstdio.c 
 
 DRIVERLIB_SRCS := \
@@ -134,8 +135,8 @@ ASM_FPU   := -defsym=__FPU_PRESENT=1
 # GNU-ARM toolset (NOTE: You need to adjust to your machine)
 # see https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
 #
-# GNU_ARM := C:/"Program Files (x86)"/"Arm GNU Toolchain arm-none-eabi"/"14.2 rel1"/
-GNU_ARM := /usr/
+GNU_ARM := C:/"Program Files (x86)"/"Arm GNU Toolchain arm-none-eabi"/"14.2 rel1"/
+# GNU_ARM := /usr/
 
 
 CC    := $(GNU_ARM)/bin/arm-none-eabi-gcc
@@ -245,16 +246,16 @@ endif
 
 .PHONY : clean
 clean:
-# -del /Q $(BIN_DIR)\*.o \
-# $(BIN_DIR)\*.d \
-# $(BIN_DIR)\*.bin \
-# $(BIN_DIR)\*.elf \
-# $(BIN_DIR)\*.map
-	rm -f $(BIN_DIR)/*.o \
-      $(BIN_DIR)/*.d \
-      $(BIN_DIR)/*.bin \
-      $(BIN_DIR)/*.elf \
-      $(BIN_DIR)/*.map
+	-del /Q $(BIN_DIR)\*.o \
+	$(BIN_DIR)\*.d \
+	$(BIN_DIR)\*.bin \
+	$(BIN_DIR)\*.elf \
+	$(BIN_DIR)\*.map
+# rm -f $(BIN_DIR)/*.o \
+#   $(BIN_DIR)/*.d \
+#   $(BIN_DIR)/*.bin \
+#   $(BIN_DIR)/*.elf \
+#   $(BIN_DIR)/*.map
 
 	
 show:

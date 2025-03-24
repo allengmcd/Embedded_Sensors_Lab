@@ -2,6 +2,8 @@
     "files.associations": {
         "bsp_uart.h": "c",
         "rom_map.h": "c",
-        "st7735.h": "c"
+        "st7735.h": "c",
+        "sysctl.h": "c",
+        "st7735_2.h": "c"
     }
 }

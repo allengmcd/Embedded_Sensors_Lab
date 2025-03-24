@@ -598,6 +598,7 @@ uint8_t static writecommand(uint8_t c) {
   
   TFT_CS_SET(TFT_CS_LOW);
   DC_SET(DC_COMMAND);
+  //UARTprintf("writecommand: %x\n  ", c);
   BSP_SSI_Send(&c, 1);
   TFT_CS_SET(TFT_CS_HIGH);
 
@@ -621,6 +622,7 @@ uint8_t static writedata(uint8_t c) {
 
   TFT_CS_SET(TFT_CS_LOW);
   DC_SET(DC_DATA);
+  //UARTprintf("writedata: %x\n  ", c);
   BSP_SSI_Send(&c, 1);
   TFT_CS_SET(TFT_CS_HIGH);
 
