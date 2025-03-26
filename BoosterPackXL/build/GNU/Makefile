@@ -58,17 +58,21 @@ ThirdParty_PATH := ../../third_party
 CMSIS_PATH := $(ThirdParty_PATH)/CMSIS/Core/Include
 DriverLib_PATH := $(ThirdParty_PATH)/TI/driverlib
 Tiva_PATH := $(ThirdParty_PATH)/TI
+GRLIB_PATH := $(ThirdParty_PATH)/TI/grlib
+GRLIB_PATH := $(ThirdParty_PATH)/TI/grlib/fonts
 
 # list of all source directories used by this project
 VPATH = \
 	$(Project_PATH)src \
 	$(DriverLib_PATH) \
+	$(GRLIB_PATH) \
 
 # list of all include directories needed by this project
 INCLUDES  = \
 	-I"$(Project_PATH)inc" \
 	-I"$(CMSIS_PATH)" \
-	-I"$(Tiva_PATH)" 
+	-I"$(Tiva_PATH)"  \
+	-I"$(GRLIB_PATH)" 
 
 #-----------------------------------------------------------------------------
 # files
@@ -81,30 +85,14 @@ INCLUDES  = \
 
 # C source files
 C_SRCS := \
-	main.c \
-	startup_gcc.c \
-  	system_TM4C129.c \
-	bsp_gpio.c  \
-	bsp_uart.c \
-	bsp_ssi.c  \
-	bsp_utils.c  \
-	st7735_2.c  \
-	game_of_life.c  \
-	uartstdio.c 
+	$(wildcard $(Project_PATH)/src/*.c) 
 
 DRIVERLIB_SRCS := \
-	adc.c \
-	cpu.c \
-	gpio.c \
-	interrupt.c \
-	pwm.c \
-	i2c.c \
-	ssi.c \
-	sysctl.c \
-	sysexc.c \
-	systick.c \
-	timer.c \
-	uart.c
+	$(wildcard $(DriverLib_PATH)/*.c) 
+
+GRLIB_SRCS := \
+	$(wildcard $(GRLIB_PATH)/*.c) \
+	$(wildcard $(GRLIB_PATH)/fonts/*.c) 
 
 # UTILS_SRCS := \
 # 	uartstdio.c
@@ -135,8 +123,8 @@ ASM_FPU   := -defsym=__FPU_PRESENT=1
 # GNU-ARM toolset (NOTE: You need to adjust to your machine)
 # see https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
 #
-GNU_ARM := C:/"Program Files (x86)"/"Arm GNU Toolchain arm-none-eabi"/"14.2 rel1"/
-# GNU_ARM := /usr/
+# GNU_ARM := C:/"Program Files (x86)"/"Arm GNU Toolchain arm-none-eabi"/"14.2 rel1"/
+GNU_ARM := /usr/
 
 
 CC    := $(GNU_ARM)/bin/arm-none-eabi-gcc
@@ -160,6 +148,7 @@ RM    := rm
 
 # combine all the soruces...
 C_SRCS += $(DRIVERLIB_SRCS)
+C_SRCS += $(GRLIB_SRCS)
 # C_SRCS += $(UTILS_SRCS)
 
 ifeq (rel, $(CONF)) # Release configuration ..................................
@@ -246,16 +235,16 @@ endif
 
 .PHONY : clean
 clean:
-	-del /Q $(BIN_DIR)\*.o \
-	$(BIN_DIR)\*.d \
-	$(BIN_DIR)\*.bin \
-	$(BIN_DIR)\*.elf \
-	$(BIN_DIR)\*.map
-# rm -f $(BIN_DIR)/*.o \
-#   $(BIN_DIR)/*.d \
-#   $(BIN_DIR)/*.bin \
-#   $(BIN_DIR)/*.elf \
-#   $(BIN_DIR)/*.map
+# -del /Q $(BIN_DIR)\*.o \
+# $(BIN_DIR)\*.d \
+# $(BIN_DIR)\*.bin \
+# $(BIN_DIR)\*.elf \
+# $(BIN_DIR)\*.map
+	rm -f $(BIN_DIR)/*.o \
+	$(BIN_DIR)/*.d \
+	$(BIN_DIR)/*.bin \
+	$(BIN_DIR)/*.elf \
+	$(BIN_DIR)/*.map
 
 	
 show:
