@@ -5,6 +5,7 @@
 #define BITS_PER_BYTE 8
 
 uint8_t gol_Grid[HEIGHT][WIDTH / BITS_PER_BYTE] = {0};  // 2D bit array
+uint8_t gol_Grid_Buffer[HEIGHT][WIDTH / BITS_PER_BYTE] = {0};  // 2D bit array
 
 
 void seed_rand() {
@@ -25,7 +26,7 @@ void set_cell(int x, int y, int state) {
 int get_cell(int x, int y) {
     x = (x + WIDTH) % WIDTH;   // Wrap around horizontally
     y = (y + HEIGHT) % HEIGHT; // Wrap around vertically
-    return (gol_Grid[y][x / BITS_PER_BYTE] >> (x % BITS_PER_BYTE)) & 1;
+    return (gol_Grid_Buffer[y][x / BITS_PER_BYTE] >> (x % BITS_PER_BYTE)) & 1;
 }
 
 void randomizeBoard()
@@ -45,6 +46,8 @@ void randomizeBoard()
             }
         }
     }
+
+    memcpy(gol_Grid_Buffer, gol_Grid, sizeof(gol_Grid));
 }
 
 
@@ -123,4 +126,6 @@ void nextGeneration()
             }
         }
     }
+    
+    memcpy(gol_Grid_Buffer, gol_Grid, sizeof(gol_Grid));
 }
