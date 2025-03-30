@@ -21,7 +21,7 @@ int main(void)
     g_ui32SysClock = SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ |
         SYSCTL_OSC_MAIN |
         SYSCTL_USE_PLL |
-        SYSCTL_CFG_VCO_240), 120000000);
+        SYSCTL_CFG_VCO_240), 160000000);
 
     SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ);
 
@@ -36,6 +36,9 @@ int main(void)
     BSP_SSI_Init();
     UARTprintf("SSI Init Successful...\n  ");
 
+    UARTprintf("SSI DMA Init...\n  ");
+    BSP_SSI_Init_DMA();
+    UARTprintf("SSI DMA Init Successful...\n  ");
     
 
     UARTprintf("ST7735 Init...\n  ");
@@ -69,7 +72,11 @@ int main(void)
     uint32_t counter = 0;
     while(1)
     {
-    nextGeneration();
+        
+        // BSP_LCD_DrawString(0, 3, "JoyX=    ", BSP_LCD_Color565(255, 255, 255));
+        // BSP_LCD_SetCursor(5, 3);
+        //BSP_Delay_ms(500);
+        nextGeneration();
         //BSP_LCD_DrawPixel(64,64,BSP_LCD_Color565(0,0,200));
         //SysCtlDelay(100);
         //UARTprintf("Loop #%d...\n  ", counter);

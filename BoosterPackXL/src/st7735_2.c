@@ -629,6 +629,57 @@ uint8_t static writedata(uint8_t c) {
   return 0; // For now, return 0 since we are not using the response
 }
 
+// This is a helper function that sends a piece of 8-bit data to the LCD.
+// Inputs: c  8-bit data to transmit
+// Outputs: 8-bit reply
+// Assumes: SSI2 and ports have already been initialized and enabled
+uint8_t static writebuffer(uint8_t *buffer, uint32_t length) {
+  //                                       // wait until SSI2 not busy/transmit FIFO empty
+  // while((SSI2_SR_R&SSI_SR_BSY)==SSI_SR_BSY){};
+  // TFT_CS = TFT_CS_LOW;
+  // DC = DC_DATA;
+  // SSI2_DR_R = c;                        // data out
+  // while((SSI2_SR_R&SSI_SR_RNE)==0){};   // wait until response
+  // TFT_CS = TFT_CS_HIGH;
+  // return (uint8_t)SSI2_DR_R;            // return the response
+
+  UARTprintf("writebuffer...\n  ");
+
+  TFT_CS_SET(TFT_CS_LOW);
+  DC_SET(DC_DATA);
+  //UARTprintf("writedata: %x\n  ", c);
+  BSP_SSI_Send(buffer, length);
+  TFT_CS_SET(TFT_CS_HIGH);
+  UARTprintf("writebuffer after...\n  ");
+
+
+  return 0; // For now, return 0 since we are not using the response
+}
+
+uint8_t static writebuffer16(uint16_t *buffer, uint32_t length) {
+  //                                       // wait until SSI2 not busy/transmit FIFO empty
+  // while((SSI2_SR_R&SSI_SR_BSY)==SSI_SR_BSY){};
+  // TFT_CS = TFT_CS_LOW;
+  // DC = DC_DATA;
+  // SSI2_DR_R = c;                        // data out
+  // while((SSI2_SR_R&SSI_SR_RNE)==0){};   // wait until response
+  // TFT_CS = TFT_CS_HIGH;
+  // return (uint8_t)SSI2_DR_R;            // return the response
+
+  UARTprintf("writebuffer...\n  ");
+
+  TFT_CS_SET(TFT_CS_LOW);
+  DC_SET(DC_DATA);
+  //UARTprintf("writedata: %x\n  ", c);
+  //BSP_SSI_Send_16(buffer, length);
+  BSP_SSI_Send_16_DMA(buffer, length);
+  TFT_CS_SET(TFT_CS_HIGH);
+  UARTprintf("writebuffer after...\n  ");
+
+
+  return 0; // For now, return 0 since we are not using the response
+}
+
 
 // Rather than a bazillion writecommand() and writedata() calls, screen
 // initialization commands and arguments are organized in these tables
@@ -892,6 +943,15 @@ void static pushColor(uint16_t color) {
   writedata((uint8_t)color);
 }
 
+
+void BSP_LCD_DrawBuffer(uint16_t *buffer) {
+  // UARTprintf("setAddrWindow...\n  ");
+  setAddrWindow(0, 0, _width-1, _height-1);
+  // UARTprintf("writecommand...\n  ");
+  writecommand(ST7735_RAMWR); // write to RAM
+  // UARTprintf("writebuffer...\n  ");
+  writebuffer16(buffer, _width * _height);
+}
 
 //------------BSP_LCD_DrawPixel------------
 // Color the pixel at the given coordinates with the given color.

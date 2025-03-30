@@ -437,3 +437,4 @@ void BSP_LCD_PlotPoint(int32_t data1, uint16_t color1);
 // Assumes: BSP_LCD_Init() and BSP_LCD_Drawaxes() have been called
 void BSP_LCD_PlotIncrement(void);
 
+void BSP_LCD_DrawBuffer(uint16_t *buffer);
