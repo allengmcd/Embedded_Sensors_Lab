@@ -60,32 +60,55 @@ DriverLib_PATH := $(ThirdParty_PATH)/TI/driverlib
 Tiva_PATH := $(ThirdParty_PATH)/TI
 GRLIB_PATH := $(ThirdParty_PATH)/TI/grlib
 GRLIB_PATH := $(ThirdParty_PATH)/TI/grlib/fonts
+RTOS_PATH := $(ThirdParty_PATH)/uC-OS2
+RTOS_SRC_PATH := $(RTOS_PATH)/uC-OS2
+RTOS_CPU_PATH := $(RTOS_PATH)/uC-CPU
+RTOS_LIB_PATH := $(RTOS_PATH)/uC-LIB
 
 # list of all source directories used by this project
 VPATH = \
 	$(Project_PATH)src \
+	$(Project_PATH)cfg \
 	$(DriverLib_PATH) \
 	$(GRLIB_PATH) \
+	$(RTOS_SRC_PATH)/Ports/ARM-Cortex-M/ARMv7-M \
+	$(RTOS_SRC_PATH)/Ports/ARM-Cortex-M/ARMv7-M/GNU \
+	$(RTOS_SRC_PATH)/Source \
+	$(RTOS_CPU_PATH) \
+	$(RTOS_CPU_PATH)/ARM-Cortex-M/ARMv7-M \
+	$(RTOS_CPU_PATH)/ARM-Cortex-M/ARMv7-M/GNU \
+	$(RTOS_LIB_PATH) \
+	$(RTOS_LIB_PATH)/Ports/ARM-Cortex-M4/GNU
 
 # list of all include directories needed by this project
 INCLUDES  = \
 	-I"$(Project_PATH)inc" \
+	-I"$(Project_PATH)cfg" \
 	-I"$(CMSIS_PATH)" \
 	-I"$(Tiva_PATH)"  \
-	-I"$(GRLIB_PATH)" 
+	-I"$(GRLIB_PATH)"  \
+	-I$(RTOS_SRC_PATH)/Ports/ARM-Cortex-M/ARMv7-M \
+	-I$(RTOS_SRC_PATH)/Ports/ARM-Cortex-M/ARMv7-M/GNU \
+	-I$(RTOS_SRC_PATH)/Source \
+	-I$(RTOS_CPU_PATH) \
+	-I$(RTOS_CPU_PATH)/ARM-Cortex-M/ARMv7-M/GNU \
+	-I$(RTOS_LIB_PATH) \
+	-I$(RTOS_LIB_PATH)/Ports/ARM-Cortex-M4/GNU
 
 #-----------------------------------------------------------------------------
 # files
 #
 
 # assembler source files
-# ASM_SRCS := \
-
-	
+ASM_SRCS := \
+	cpu_a.s \
+	os_cpu_a.s #\
+	#lib_mem_a.s
 
 # C source files
 C_SRCS := \
-	$(wildcard $(Project_PATH)/src/*.c) 
+	$(wildcard $(Project_PATH)/src/*.c)  \
+	$(wildcard $(Project_PATH)/cfg/*.c) 
 
 DRIVERLIB_SRCS := \
 	$(wildcard $(DriverLib_PATH)/*.c) 
@@ -93,6 +116,34 @@ DRIVERLIB_SRCS := \
 GRLIB_SRCS := \
 	$(wildcard $(GRLIB_PATH)/*.c) \
 	$(wildcard $(GRLIB_PATH)/fonts/*.c) 
+
+RTOS_SRCS := \
+	os_dbg.c \
+	os_core.c \
+	os_flag.c \
+	os_mbox.c \
+	os_mem.c \
+	os_mutex.c \
+	os_q.c \
+	os_sem.c \
+	os_task.c \
+	os_time.c \
+	os_tmr.c \
+	os_cpu_c.c \
+	cpu_c.c \
+	cpu_core.c \
+	lib_ascii.c \
+	lib_math.c \
+	lib_mem.c \
+	lib_str.c
+# RTOS_SRCS := \
+# 	$(wildcard $(Project_PATH)cfg/*.c) \
+# 	$(wildcard $(RTOS_SRC_PATH)/Source/*.c) \
+# 	$(wildcard $(RTOS_SRC_PATH)/Ports/ARM-Cortex-M/ARMv7-M/*.c) \
+# 	$(wildcard $(RTOS_SRC_PATH)/Ports/ARM-Cortex-M/ARMv7-M/GNU/*.c) \
+# 	$(wildcard $(RTOS_CPU_PATH)/*.c) \
+# 	$(wildcard $(RTOS_CPU_PATH)/ARM-Cortex-M/ARMv7-M/*.c) \
+# 	$(wildcard $(RTOS_LIB_PATH)/*.c) \
 
 # UTILS_SRCS := \
 # 	uartstdio.c
@@ -149,7 +200,7 @@ RM    := rm
 # combine all the soruces...
 C_SRCS += $(DRIVERLIB_SRCS)
 C_SRCS += $(GRLIB_SRCS)
-# C_SRCS += $(UTILS_SRCS)
+C_SRCS += $(RTOS_SRCS)
 
 ifeq (rel, $(CONF)) # Release configuration ..................................
 
