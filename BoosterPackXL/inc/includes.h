@@ -7,4 +7,6 @@
 #include <stdlib.h>
 #include <string.h>  
 
+#include  <ucos_ii.h>
+
 #endif

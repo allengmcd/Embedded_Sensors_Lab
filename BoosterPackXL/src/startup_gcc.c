@@ -38,6 +38,15 @@ static void IntDefaultHandler(void);
 
 //*****************************************************************************
 //
+// External declaration for the interrupt handler used by the application.
+//
+//*****************************************************************************
+
+void OS_CPU_PendSVHandler(void);
+void OS_CPU_SysTickHandler(void);
+
+//*****************************************************************************
+//
 // The entry point for the application.
 //
 //*****************************************************************************
@@ -74,8 +83,8 @@ void (* const g_pfnVectors[])(void) =
     IntDefaultHandler,                      // SVCall handler
     IntDefaultHandler,                      // Debug monitor handler
     0,                                      // Reserved
-    IntDefaultHandler,                      // The PendSV handler
-    IntDefaultHandler,                      // The SysTick handler
+    (void *)(int)&OS_CPU_PendSVHandler,             // The PendSV handler
+    (void *)(int)&OS_CPU_SysTickHandler,            // The SysTick handler
     IntDefaultHandler,                      // GPIO Port A
     IntDefaultHandler,                      // GPIO Port B
     IntDefaultHandler,                      // GPIO Port C
