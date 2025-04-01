@@ -194,7 +194,7 @@ static  void  Task1 (char *data)
 	while(1)
 	{
         nextGeneration();
-		OSTimeDlyHMSM(0, 0, 0, 50); /* Wait 1 second */
+		//OSTimeDlyHMSM(0, 0, 0, 50); /* Wait 1 second */
 	}
 }
 
