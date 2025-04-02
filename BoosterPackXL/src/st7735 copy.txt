@@ -151,7 +151,7 @@
 // J2.19 servo PWM                       {TM4C123 PB2, MSP432 P2.5}
 // J4.35 nothing                         {TM4C123 PC6, MSP432 P6.7}
 
-#include <st7735_2.h>
+#include <st7735.h>
 
 #define __TI_COMPILER_VERSION__ 1
 

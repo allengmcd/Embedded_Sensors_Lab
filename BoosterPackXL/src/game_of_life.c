@@ -46,10 +46,10 @@ void randomizeBoard()
             set_cell(i, j, random_bit);
             if(random_bit == 0)
             {
-                BSP_LCD_DrawPixel(i,j,BSP_LCD_Color565(0,0,0));
+                //BSP_LCD_DrawPixel(i,j,BSP_LCD_Color565(0,0,0));
             }
             else{
-                BSP_LCD_DrawPixel(i,j,BSP_LCD_Color565(0,0,200));
+                //BSP_LCD_DrawPixel(i,j,BSP_LCD_Color565(0,0,200));
             }
         }
     }
@@ -197,5 +197,5 @@ void nextGeneration()
     // UARTprintf("\n");
     // UARTprintf("\n");
     // UARTprintf("sendGolGridToLCD...\n  ");
-    BSP_LCD_DrawBuffer((uint16_t *)frameBuffer);
+    // BSP_LCD_DrawBuffer((uint16_t *)frameBuffer);
 }

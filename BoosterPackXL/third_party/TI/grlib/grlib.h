@@ -26,6 +26,8 @@
 #ifndef __GRLIB_H__
 #define __GRLIB_H__
 
+#include <stdint.h>
+#include <stdbool.h>
 //*****************************************************************************
 //
 //! \addtogroup primitives_api

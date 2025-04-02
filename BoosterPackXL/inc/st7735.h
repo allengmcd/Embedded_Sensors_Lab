@@ -1,269 +1,202 @@
-// #ifndef __ST7735_H__
-// #define __ST7735_H__
+// BSP.h
+// Runs on either the TM4C123 or MSP432 with an Educational BoosterPack MKII (BOOSTXL-EDUMKII)
+// This file contains the function prototypes for the software interface to the MKII BoosterPack.
+// This board support package (BSP) is an abstraction layer,
+//   forming a bridge between the low-level hardware and the high-level software.
 
-// #include "fonts.h"
-// #include "includes.h"
-// #include "driverlib/sysctl.h"
-// #include "bsp_gpio.h"
-// #include "bsp_ssi.h"
+// Daniel and Jonathan Valvano
+// June 8, 2016
 
-// #define ST7735_MADCTL_MY  0x80
-// #define ST7735_MADCTL_MX  0x40
-// #define ST7735_MADCTL_MV  0x20
-// #define ST7735_MADCTL_ML  0x10
-// #define ST7735_MADCTL_RGB 0x00
-// #define ST7735_MADCTL_BGR 0x08
-// #define ST7735_MADCTL_MH  0x04
+/* This example accompanies the books
+   "Embedded Systems: Introduction to the MSP432 Microcontroller",
+   ISBN: 978-1512185676, Jonathan Valvano, copyright (c) 2016
 
-// /*** Redefine if necessary ***/
-// // #define ST7735_SPI_PORT hspi1
-// // extern SPI_HandleTypeDef ST7735_SPI_PORT;
+   "Embedded Systems: Real-Time Interfacing to the MSP432 Microcontroller",
+   ISBN: 978-1514676585, Jonathan Valvano, copyright (c) 2016
 
-// #define ST7735_RES_Pin       GPIO_PIN_3
-// #define ST7735_RES_GPIO_Port GPIO_PORTH_BASE
-// #define ST7735_CS_Pin        GPIO_PIN_2
-// #define ST7735_CS_GPIO_Port  GPIO_PORTN_BASE
-// #define ST7735_DC_Pin        GPIO_PIN_3
-// #define ST7735_DC_GPIO_Port  GPIO_PORTL_BASE
+   "Embedded Systems: Introduction to ARM Cortex M Microcontrollers"
+   ISBN: 978-1469998749, Jonathan Valvano, copyright (c) 2016
 
-// #define GPIO_PIN_SET 1
-// #define GPIO_PIN_RESET 0
+   "Embedded Systems: Real Time Interfacing to Arm Cortex M Microcontrollers",
+   ISBN: 978-1463590154, Jonathan Valvano, copyright (c) 2016
 
-// // AliExpress/eBay 1.8" display, default orientation
-// /*
-// #define ST7735_IS_160X128 1
-// #define ST7735_WIDTH  128
-// #define ST7735_HEIGHT 160
-// #define ST7735_XSTART 0
-// #define ST7735_YSTART 0
-// #define ST7735_ROTATION (ST7735_MADCTL_MX | ST7735_MADCTL_MY)
-// */
+  "Embedded Systems: Real-Time Operating Systems for ARM Cortex-M Microcontrollers",
+      ISBN: 978-1466468863, , Jonathan Valvano, copyright (c) 2016
 
-// // AliExpress/eBay 1.8" display, rotate right
-// /*
-// #define ST7735_IS_160X128 1
-// #define ST7735_WIDTH  160
-// #define ST7735_HEIGHT 128
-// #define ST7735_XSTART 0
-// #define ST7735_YSTART 0
-// #define ST7735_ROTATION (ST7735_MADCTL_MY | ST7735_MADCTL_MV)
-// */
+ Copyright 2016 by Jonathan W. Valvano, valvano@mail.utexas.edu
+    You may use, edit, run or distribute this file
+    as long as the above copyright notice remains
+ THIS SOFTWARE IS PROVIDED "AS IS".  NO WARRANTIES, WHETHER EXPRESS, IMPLIED
+ OR STATUTORY, INCLUDING, BUT NOT LIMITED TO, IMPLIED WARRANTIES OF
+ MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE APPLY TO THIS SOFTWARE.
+ VALVANO SHALL NOT, IN ANY CIRCUMSTANCES, BE LIABLE FOR SPECIAL, INCIDENTAL,
+ OR CONSEQUENTIAL DAMAGES, FOR ANY REASON WHATSOEVER.
+ For more information about my classes, my research, and my books, see
+ http://users.ece.utexas.edu/~valvano/
+ */
 
-// // AliExpress/eBay 1.8" display, rotate left
-// /*
-// #define ST7735_IS_160X128 1
-// #define ST7735_WIDTH  160
-// #define ST7735_HEIGHT 128
-// #define ST7735_XSTART 0
-// #define ST7735_YSTART 0
-// #define ST7735_ROTATION (ST7735_MADCTL_MX | ST7735_MADCTL_MV)
-// */
+//  J1   J3               J4   J2
+// [ 1] [21]             [40] [20]
+// [ 2] [22]             [39] [19]
+// [ 3] [23]             [38] [18]
+// [ 4] [24]             [37] [17]
+// [ 5] [25]             [36] [16]
+// [ 6] [26]             [35] [15]
+// [ 7] [27]             [34] [14]
+// [ 8] [28]             [33] [13]
+// [ 9] [29]             [32] [12]
+// [10] [30]             [31] [11]
 
-// // AliExpress/eBay 1.8" display, upside down
-// /*
-// #define ST7735_IS_160X128 1
-// #define ST7735_WIDTH  128
-// #define ST7735_HEIGHT 160
-// #define ST7735_XSTART 0
-// #define ST7735_YSTART 0
-// #define ST7735_ROTATION (0)
-// */
+// Connected pins in physical order
+// J1.1 +3.3V (power)
+// J1.2 joystick horizontal (X) (analog) {TM4C123 PB5/AIN11, MSP432 P6.0}
+// J1.3 UART from Bluetooth to LaunchPad (UART) {TM4C123 PB0, MSP432 P3.2}
+// J1.4 UART from LaunchPad to Bluetooth (UART) {TM4C123 PB1, MSP432 P3.3}
+// J1.5 joystick Select button (digital) {TM4C123 PE4, MSP432 P4.1}
+// J1.6 microphone (analog)              {TM4C123 PE5/AIN8, MSP432 P4.3}
+// J1.7 LCD SPI clock (SPI)              {TM4C123 PB4, MSP432 P1.5}
+// J1.8 ambient light (OPT3001) interrupt (digital) {TM4C123 PA5, MSP432 P4.6}
+// J1.9 ambient light (OPT3001) and temperature sensor (TMP006) I2C SCL (I2C)  {TM4C123 PA6, MSP432 P6.5}
+// J1.10 ambient light (OPT3001) and temperature sensor (TMP006) I2C SDA (I2C) {TM4C123 PA7, MSP432 P6.4}
+//--------------------------------------------------
+// J2.11 temperature sensor (TMP006) interrupt (digital) {TM4C123 PA2, MSP432 P3.6}
+// J2.12 nothing                         {TM4C123 PA3, MSP432 P5.2}
+// J2.13 LCD SPI CS (SPI)                {TM4C123 PA4, MSP432 P5.0}
+// J2.14 nothing                         {TM4C123 PB6, MSP432 P1.7}
+// J2.15 LCD SPI data (SPI)              {TM4C123 PB7, MSP432 P1.6}
+// J2.16 nothing (reset)
+// J2.17 LCD !RST (digital)              {TM4C123 PF0, MSP432 P5.7}
+// J2.18 Profile 4                       {TM4C123 PE0, MSP432 P3.0}
+// J2.19 servo PWM                       {TM4C123 PB2, MSP432 P2.5}
+// J2.20 GND (ground)
+//--------------------------------------------------
+// J3.21 +5V (power)
+// J3.22 GND (ground)
+// J3.23 accelerometer X (analog)        {TM4C123 PD0/AIN7, MSP432 P6.1}
+// J3.24 accelerometer Y (analog)        {TM4C123 PD1/AIN6, MSP432 P4.0}
+// J3.25 accelerometer Z (analog)        {TM4C123 PD2/AIN5, MSP432 P4.2}
+// J3.26 joystick vertical (Y) (analog)  {TM4C123 PD3/AIN4, MSP432 P4.4}
+// J3.27 Profile 0                       {TM4C123 PE1, MSP432 P4.5}
+// J3.28 Profile 1                       {TM4C123 PE2, MSP432 P4.7}
+// J3.29 Profile 2                       {TM4C123 PE3, MSP432 P5.4}
+// J3.30 Profile 3                       {TM4C123 PF1, MSP432 P5.5}
+//--------------------------------------------------
+// J4.31 LCD RS (digital)                {TM4C123 PF4, MSP432 P3.7}
+// J4.32 user Button2 (bottom) (digital) {TM4C123 PD7, MSP432 P3.5}
+// J4.33 user Button1 (top) (digital)    {TM4C123 PD6, MSP432 P5,1}
+// J4.34 Profile 6/gator hole switch     {TM4C123 PC7, MSP432 P2.3}
+// J4.35 nothing                         {TM4C123 PC6, MSP432 P6.7}
+// J4.36 Profile 5                       {TM4C123 PC5, MSP432 P6.6}
+// J4.37 RGB LED blue (PWM)              {TM4C123 PC4, MSP432 P5.6}
+// J4.38 RGB LED green (PWM)             {TM4C123 PB3, MSP432 P2.4}
+// J4.39 RGB LED red (jumper up) or LCD backlight (jumper down) (PWM) {TM4C123 PF3, MSP432 P2.6}
+// J4.40 buzzer (PWM)                    {TM4C123 PF2, MSP432 P2.7}
+//--------------------------------------------------
+// Connected pins in logic order
+// power and reset
+// J1.1 +3.3V (power)
+// J3.21 +5V (power)
+// J3.22 GND (ground)
+// J2.20 GND (ground)
+// J2.16 nothing (reset)
+//--------------------------------------------------
+// LCD graphics
+// J1.7 LCD SPI clock (SPI)              {TM4C123 PB4, MSP432 P1.5}
+// J2.13 LCD SPI CS (SPI)                {TM4C123 PA4, MSP432 P5.0}
+// J2.15 LCD SPI data (SPI)              {TM4C123 PB7, MSP432 P1.6}
+// J2.17 LCD !RST (digital)              {TM4C123 PF0, MSP432 P5.7}
+// J4.31 LCD RS (digital)                {TM4C123 PF4, MSP432 P3.7}
+//--------------------------------------------------
+// 3-color LED
+// J4.37 RGB LED blue (PWM)              {TM4C123 PC4, MSP432 P5.6}
+// J4.38 RGB LED green (PWM)             {TM4C123 PB3, MSP432 P2.4}
+// J4.39 RGB LED red (jumper up) or LCD backlight (jumper down) (PWM) {TM4C123 PF3, MSP432 P2.6}
+//--------------------------------------------------
+// user buttons
+// J4.32 user Button2 (bottom) (digital) {TM4C123 PD7, MSP432 P3.5}
+// J4.33 user Button1 (top) (digital)    {TM4C123 PD6, MSP432 P5.1}
+//--------------------------------------------------
+// buzzer output
+// J4.40 buzzer (PWM)                    {TM4C123 PF2, MSP432 P2.7}
+//--------------------------------------------------
+// Joystick
+// J1.5 joystick Select button (digital) {TM4C123 PE4, MSP432 P4.1}
+// J1.2 joystick horizontal (X) (analog) {TM4C123 PB5/AIN11, MSP432 P6.0}
+// J3.26 joystick vertical (Y) (analog)  {TM4C123 PD3/AIN4, MSP432 P4.4}
+//--------------------------------------------------
+// accelerometer
+// J3.23 accelerometer X (analog)        {TM4C123 PD0/AIN7, MSP432 P6.1}
+// J3.24 accelerometer Y (analog)        {TM4C123 PD1/AIN6, MSP432 P4.0}
+// J3.25 accelerometer Z (analog)        {TM4C123 PD2/AIN5, MSP432 P4.2}
+//--------------------------------------------------
+// microphone
+// J1.6 microphone (analog)              {TM4C123 PE5/AIN8, MSP432 P4.3}
+//--------------------------------------------------
+// light and temperature sensors (I2C)
+// J1.8 ambient light (OPT3001) interrupt (digital) {TM4C123 PA5, MSP432 P4.6}
+// J1.9 ambient light (OPT3001) and temperature sensor (TMP006) I2C SCL (I2C)  {TM4C123 PA6, MSP432 P6.5}
+// J1.10 ambient light (OPT3001) and temperature sensor (TMP006) I2C SDA (I2C) {TM4C123 PA7, MSP432 P6.4}
+// J2.11 temperature sensor (TMP006) interrupt (digital) {TM4C123 PA2, MSP432 P3.6}
+//--------------------------------------------------
+// Bluetooth booster
+// J1.3 UART from Bluetooth to LaunchPad (UART) {TM4C123 PB0, MSP432 P3.2}
+// J1.4 UART from LaunchPad to Bluetooth (UART) {TM4C123 PB1, MSP432 P3.3}
+//--------------------------------------------------
+// profile pins
+// J3.27 Profile 0                       {TM4C123 PE1, MSP432 P4.5}
+// J3.28 Profile 1                       {TM4C123 PE2, MSP432 P4.7}
+// J3.29 Profile 2                       {TM4C123 PE3, MSP432 P5.4}
+// J3.30 Profile 3                       {TM4C123 PF1, MSP432 P5.5}
+// J2.18 Profile 4                       {TM4C123 PE0, MSP432 P3.0}
+// J4.36 Profile 5                       {TM4C123 PC5, MSP432 P6.6}
+// J4.34 Profile 6                       {TM4C123 PC7, MSP432 P2.3}
+//--------------------------------------------------
+// unconnected pins
+// J2.12 nothing                         {TM4C123 PA3, MSP432 P5.2}
+// J2.14 nothing                         {TM4C123 PB6, MSP432 P1.7}
+// J2.19 servo PWM                       {TM4C123 PB2, MSP432 P2.5}
+// J4.35 nothing                         {TM4C123 PC6, MSP432 P6.7}
 
-// // WaveShare ST7735S-based 1.8" display, default orientation
-// /*
-// #define ST7735_IS_160X128 1
-// #define ST7735_WIDTH  128
-// #define ST7735_HEIGHT 160
-// #define ST7735_XSTART 2
-// #define ST7735_YSTART 1
-// #define ST7735_ROTATION (ST7735_MADCTL_MX | ST7735_MADCTL_MY | ST7735_MADCTL_RGB)
-// */
 
-// // WaveShare ST7735S-based 1.8" display, rotate right
-// /*
-// #define ST7735_IS_160X128 1
-// #define ST7735_WIDTH  160
-// #define ST7735_HEIGHT 128
-// #define ST7735_XSTART 1
-// #define ST7735_YSTART 2
-// #define ST7735_ROTATION (ST7735_MADCTL_MY | ST7735_MADCTL_MV | ST7735_MADCTL_RGB)
-// */
+// ------------Includes------------
+#include "includes.h"
+#include "driverlib/sysctl.h"
+#include "bsp_gpio.h"
+#include "bsp_ssi.h"
+#include "bsp_utils.h"
+#include "grlib/grlib.h"
 
-// // WaveShare ST7735S-based 1.8" display, rotate left
-// /*
-// #define ST7735_IS_160X128 1
-// #define ST7735_WIDTH  160
-// #define ST7735_HEIGHT 128
-// #define ST7735_XSTART 1
-// #define ST7735_YSTART 2
-// #define ST7735_ROTATION (ST7735_MADCTL_MX | ST7735_MADCTL_MV | ST7735_MADCTL_RGB)
-// */
 
-// // WaveShare ST7735S-based 1.8" display, upside down
-// /*
-// #define ST7735_IS_160X128 1
-// #define ST7735_WIDTH  128
-// #define ST7735_HEIGHT 160
-// #define ST7735_XSTART 2
-// #define ST7735_YSTART 1
-// #define ST7735_ROTATION (ST7735_MADCTL_RGB)
-// */
 
-// // 1.44" display, default orientation
-// #define ST7735_IS_128X128 1
-// #define ST7735_WIDTH  128
-// #define ST7735_HEIGHT 128
-// #define ST7735_XSTART 2
-// #define ST7735_YSTART 3
-// #define ST7735_ROTATION (ST7735_MADCTL_MX | ST7735_MADCTL_MY | ST7735_MADCTL_BGR)
 
-// // 1.44" display, rotate right
-// /*
-// #define ST7735_IS_128X128 1
-// #define ST7735_WIDTH  128
-// #define ST7735_HEIGHT 128
-// #define ST7735_XSTART 3
-// #define ST7735_YSTART 2
-// #define ST7735_ROTATION (ST7735_MADCTL_MY | ST7735_MADCTL_MV | ST7735_MADCTL_BGR)
-// */
+//color constants                  red  grn  blu
+#define LCD_BLACK      0x0000   //   0,   0,   0
+#define LCD_BLUE       0x001F   //   0,   0, 255
+#define LCD_DARKBLUE   0x34BF   //  50, 150, 255
+#define LCD_RED        0xF800   // 255,   0,   0
+#define LCD_GREEN      0x07E0   //   0, 255,   0
+#define LCD_LIGHTGREEN 0x07EF   //   0, 255, 120
+#define LCD_ORANGE     0xFD60   // 255, 175,   0
+#define LCD_CYAN       0x07FF   //   0, 255, 255
+#define LCD_MAGENTA    0xF81F   // 255,   0, 255
+#define LCD_YELLOW     0xFFE0   // 255, 255,   0
+#define LCD_WHITE      0xFFFF   // 255, 255, 255
+#define LCD_GREY       0x8410   // 128, 128, 128
 
-// // 1.44" display, rotate left
-// /*
-// #define ST7735_IS_128X128 1
-// #define ST7735_WIDTH  128
-// #define ST7735_HEIGHT 128
-// #define ST7735_XSTART 1
-// #define ST7735_YSTART 2
-// #define ST7735_ROTATION (ST7735_MADCTL_MX | ST7735_MADCTL_MV | ST7735_MADCTL_BGR)
-// */
 
-// // 1.44" display, upside down
-// /*
-// #define ST7735_IS_128X128 1
-// #define ST7735_WIDTH  128
-// #define ST7735_HEIGHT 128
-// #define ST7735_XSTART 2
-// #define ST7735_YSTART 1
-// #define ST7735_ROTATION (ST7735_MADCTL_BGR)
-// */
+// ------------BSP_LCD_Init------------
+// Initialize the SPI and GPIO, which correspond with
+// BoosterPack pins J1.7 (SPI CLK), J2.13 (SPI CS), J2.15
+// (SPI MOSI), J2.17 (LCD ~RST), and J4.31 (LCD DC).
+// Input: none
+// Output: none
+void BSP_LCD_Init(void);
 
-// // mini 160x80 display (it's unlikely you want the default orientation)
-// /*
-// #define ST7735_IS_160X80 1
-// #define ST7735_XSTART 26
-// #define ST7735_YSTART 1
-// #define ST7735_WIDTH  80
-// #define ST7735_HEIGHT 160 
-// #define ST7735_ROTATION (ST7735_MADCTL_MX | ST7735_MADCTL_MY | ST7735_MADCTL_BGR)
-// */
-
-// // mini 160x80, rotate left
-// /*
-// #define ST7735_IS_160X80 1
-// #define ST7735_XSTART 1
-// #define ST7735_YSTART 26
-// #define ST7735_WIDTH  160
-// #define ST7735_HEIGHT 80
-// #define ST7735_ROTATION (ST7735_MADCTL_MX | ST7735_MADCTL_MV | ST7735_MADCTL_BGR)
-// */
-
-// // mini 160x80, rotate right 
-// /*
-// #define ST7735_IS_160X80 1
-// #define ST7735_XSTART 1
-// #define ST7735_YSTART 26
-// #define ST7735_WIDTH  160
-// #define ST7735_HEIGHT 80
-// #define ST7735_ROTATION (ST7735_MADCTL_MY | ST7735_MADCTL_MV | ST7735_MADCTL_BGR)
-// */
-
-// /****************************/
-
-// #define ST7735_NOP     0x00
-// #define ST7735_SWRESET 0x01
-// #define ST7735_RDDID   0x04
-// #define ST7735_RDDST   0x09
-
-// #define ST7735_SLPIN   0x10
-// #define ST7735_SLPOUT  0x11
-// #define ST7735_PTLON   0x12
-// #define ST7735_NORON   0x13
-
-// #define ST7735_INVOFF  0x20
-// #define ST7735_INVON   0x21
-// #define ST7735_GAMSET  0x26
-// #define ST7735_DISPOFF 0x28
-// #define ST7735_DISPON  0x29
-// #define ST7735_CASET   0x2A
-// #define ST7735_RASET   0x2B
-// #define ST7735_RAMWR   0x2C
-// #define ST7735_RAMRD   0x2E
-
-// #define ST7735_PTLAR   0x30
-// #define ST7735_COLMOD  0x3A
-// #define ST7735_MADCTL  0x36
-
-// #define ST7735_FRMCTR1 0xB1
-// #define ST7735_FRMCTR2 0xB2
-// #define ST7735_FRMCTR3 0xB3
-// #define ST7735_INVCTR  0xB4
-// #define ST7735_DISSET5 0xB6
-
-// #define ST7735_PWCTR1  0xC0
-// #define ST7735_PWCTR2  0xC1
-// #define ST7735_PWCTR3  0xC2
-// #define ST7735_PWCTR4  0xC3
-// #define ST7735_PWCTR5  0xC4
-// #define ST7735_VMCTR1  0xC5
-
-// #define ST7735_RDID1   0xDA
-// #define ST7735_RDID2   0xDB
-// #define ST7735_RDID3   0xDC
-// #define ST7735_RDID4   0xDD
-
-// #define ST7735_PWCTR6  0xFC
-
-// #define ST7735_GMCTRP1 0xE0
-// #define ST7735_GMCTRN1 0xE1
-
-// // Color definitions
-// #define	ST7735_BLACK   0x0000
-// #define	ST7735_BLUE    0x001F
-// #define	ST7735_RED     0xF800
-// #define	ST7735_GREEN   0x07E0
-// #define ST7735_CYAN    0x07FF
-// #define ST7735_MAGENTA 0xF81F
-// #define ST7735_YELLOW  0xFFE0
-// #define ST7735_WHITE   0xFFFF
-// #define ST7735_COLOR565(r, g, b) (((r & 0xF8) << 8) | ((g & 0xFC) << 3) | ((b & 0xF8) >> 3))
-
-// typedef enum {
-// 	GAMMA_10 = 0x01,
-// 	GAMMA_25 = 0x02,
-// 	GAMMA_22 = 0x04,
-// 	GAMMA_18 = 0x08
-// } GammaDef;
-
-// #ifdef __cplusplus
-// extern "C" {
-// #endif
-
-// // call before initializing any SPI devices
-// void ST7735_Unselect();
-
-// void ST7735_Init(void);
-// void ST7735_DrawPixel(uint16_t x, uint16_t y, uint16_t color);
-// void ST7735_WriteString(uint16_t x, uint16_t y, const char* str, FontDef font, uint16_t color, uint16_t bgcolor);
-// void ST7735_FillRectangle(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
-// void ST7735_FillRectangleFast(uint16_t x, uint16_t y, uint16_t w, uint16_t h, uint16_t color);
-// void ST7735_FillScreen(uint16_t color);
-// void ST7735_FillScreenFast(uint16_t color);
-// void ST7735_DrawImage(uint16_t x, uint16_t y, uint16_t w, uint16_t h, const uint16_t* data);
-// void ST7735_InvertColors(bool invert);
-// void ST7735_SetGamma(GammaDef gamma);
-
-// #ifdef __cplusplus
-// }
-// #endif
-
-// #endif // __ST7735_H__
+void BSP_ST7735_PixelDraw(void *pvDisplayData, int32_t i32X, int32_t i32Y, uint32_t ui32Value);
+void BSP_ST7735_PixelDrawMultiple(void *pvDisplayData, int32_t i32X, int32_t i32Y, int32_t i32X0, int32_t i32Count, 
+  int32_t i32BPP, const uint8_t *pui8Data, const uint8_t *pui8Palette);
+void BSP_ST7735_LineDrawH(void *pvDisplayData, int32_t i32X1, int32_t i32X2, int32_t i32Y, uint32_t ui32Value);
+void BSP_ST7735_LineDrawV(void *pvDisplayData, int32_t i32X, int32_t i32Y1, int32_t i32Y2, uint32_t ui32Value);
+void BSP_ST7735_RectFill(void *pvDisplayData, const tRectangle *psRect, uint32_t ui32Value);
+uint32_t BSP_ST7735_ColorTranslate(void *pvDisplayData, uint32_t ui32Value);
+void BSP_ST7735_Flush(void *pvDisplayData);

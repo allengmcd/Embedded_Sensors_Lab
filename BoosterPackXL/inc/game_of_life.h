@@ -3,7 +3,7 @@
 
 #include "includes.h"
 #include "driverlib/sysctl.h"
-#include "st7735_2.h"
+#include "st7735.h"
 
 void golInit();
 void nextGeneration();

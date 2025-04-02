@@ -3,7 +3,7 @@
 #include "bsp_gpio.h"
 #include "bsp_uart.h"
 #include "bsp_ssi.h"
-#include "st7735_2.h"
+#include "st7735.h"
 #include "game_of_life.h"
 
 #define PART_TM4C1294NCPDT
@@ -20,6 +20,7 @@ static  void  Task2          (char       *data);
 void CPU_IntDis(void);
 void CPU_Init(void);
 void Mem_Init(void);
+
 
 
 int main(void)
@@ -77,8 +78,6 @@ int main(void)
 
     // BSP_SSI_Send(pui32DataTx, 4);
     // ST7735_FillScreen(ST7735_RED);
-    BSP_LCD_FillScreen(BSP_LCD_Color565(0, 0, 0));
-    BSP_LCD_FillScreen(BSP_LCD_Color565(0, 200, 0));
 
     golInit();
     
