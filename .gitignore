@@ -55,5 +55,4 @@ dkms.conf
 
 # Cmake generated files
 CMakeCache.txt
-BoosterPackXL_cmake/build/
-BoosterPackXL_cmake//
+BoostPackXL_cmake/build/
