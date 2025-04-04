@@ -52,3 +52,8 @@ Mkfile.old
 dkms.conf
 *.bin
 .vscode/c_cpp_properties.json
+
+# Cmake generated files
+CMakeCache.txt
+BoosterPackXL_cmake/build/
+BoosterPackXL_cmake//
