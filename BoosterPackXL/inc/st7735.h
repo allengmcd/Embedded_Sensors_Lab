@@ -200,3 +200,8 @@ void BSP_ST7735_LineDrawV(void *pvDisplayData, int32_t i32X, int32_t i32Y1, int3
 void BSP_ST7735_RectFill(void *pvDisplayData, const tRectangle *psRect, uint32_t ui32Value);
 uint32_t BSP_ST7735_ColorTranslate(void *pvDisplayData, uint32_t ui32Value);
 void BSP_ST7735_Flush(void *pvDisplayData);
+
+void Init_grlib();
+void loop_grlib();
+
+void BSP_Test_grlib();
