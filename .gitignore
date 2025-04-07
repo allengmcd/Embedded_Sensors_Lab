@@ -56,3 +56,8 @@ dkms.conf
 # Cmake generated files
 CMakeCache.txt
 BoostPackXL_cmake/build/
+BoostPackXL_cmake/CMakeFiles/
+BoostPackXL_cmake/.vscode/
+BoostPackXL_cmake/Makefile
+BoostPackXL_cmake/cmake_install.cmake
+
