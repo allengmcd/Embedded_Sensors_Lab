@@ -5,6 +5,7 @@
 #include "bsp_ssi.h"
 #include "st7735.h"
 #include "game_of_life.h"
+#include "grlib/grlib.h"
 
 #define PART_TM4C1294NCPDT
 
@@ -79,7 +80,7 @@ int main(void)
     // BSP_SSI_Send(pui32DataTx, 4);
     // ST7735_FillScreen(ST7735_RED);
 
-    golInit();
+    // golInit();
     
     // uint32_t counter = 0;
     // while(1)
@@ -95,6 +96,9 @@ int main(void)
     //     counter++;
     // }
 
+
+    Init_grlib();
+    // BSP_Test_grlib();
 
     UARTprintf("Starting uC/OS-II initilization...\n");
     OSInit();
@@ -192,7 +196,7 @@ static  void  Task1 (char *data)
     UARTprintf("Starting Task1...\n");
 	while(1)
 	{
-        nextGeneration();
+        // nextGeneration();
 		//OSTimeDlyHMSM(0, 0, 0, 50); /* Wait 1 second */
 	}
 }

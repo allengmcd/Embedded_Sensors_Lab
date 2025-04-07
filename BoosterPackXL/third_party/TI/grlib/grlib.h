@@ -780,7 +780,7 @@ typedef void (*tStringRenderer)(const struct _tContext *, const char *,
 //*****************************************************************************
 //
 //! This structure contains default values that are set in any new context
-//! initialized via a call to GrContextInit.  This structure is passed to the
+//! initialized via a call to @@  This structure is passed to the
 //! graphics library using the GrLibInit function.
 //
 //*****************************************************************************
