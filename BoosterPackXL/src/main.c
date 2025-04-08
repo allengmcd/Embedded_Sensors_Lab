@@ -71,31 +71,9 @@ int main(void)
     // begin();
     UARTprintf("ST7735 Init Successful...\n  ");
 
-    // uint8_t pui32DataTx[4];
-    // pui32DataTx[0] = 'Q';
-    // pui32DataTx[1] = 'S';
-    // pui32DataTx[2] = 'S';
-    // pui32DataTx[3] = 'I';
-
-    // BSP_SSI_Send(pui32DataTx, 4);
-    // ST7735_FillScreen(ST7735_RED);
-
-    // golInit();
-    
-    // uint32_t counter = 0;
-    // while(1)
-    // {
-        
-    //     // BSP_LCD_DrawString(0, 3, "JoyX=    ", BSP_LCD_Color565(255, 255, 255));
-    //     // BSP_LCD_SetCursor(5, 3);
-    //     //BSP_Delay_ms(500);
-    //     nextGeneration();
-    //     //BSP_LCD_DrawPixel(64,64,BSP_LCD_Color565(0,0,200));
-    //     //SysCtlDelay(100);
-    //     //UARTprintf("Loop #%d...\n  ", counter);
-    //     counter++;
-    // }
-
+    UARTprintf("PCA9685 Init...\n  ");
+    PCA9685_Init();
+    UARTprintf("PCA9685 Init Successful...\n  ");
 
     Init_grlib();
     // BSP_Test_grlib();
