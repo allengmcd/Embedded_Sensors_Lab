@@ -164,6 +164,7 @@
 #include "bsp_gpio.h"
 #include "bsp_ssi.h"
 #include "bsp_utils.h"
+#include "bsp_joystick.h"
 #include "grlib/grlib.h"
 
 

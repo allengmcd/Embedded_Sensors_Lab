@@ -57,23 +57,18 @@ int main(void)
     
 
     UARTprintf("ST7735 Init...\n  ");
-    //ST7735_Init();
     BSP_LCD_Init();
-    // Screen_HX8353E(
-    //     GPIO_PORTH_BASE, 
-    //     GPIO_PIN_3, 
-    //     GPIO_PORTL_BASE, 
-    //     GPIO_PIN_3, 
-    //     GPIO_PORTN_BASE, 
-    //     GPIO_PIN_2, 
-    //     GPIO_PORTF_BASE, 
-    //     GPIO_PIN_2);
-    // begin();
     UARTprintf("ST7735 Init Successful...\n  ");
 
+    
     UARTprintf("PCA9685 Init...\n  ");
     PCA9685_Init();
     UARTprintf("PCA9685 Init Successful...\n  ");
+
+
+    UARTprintf("Joystick Init...\n  ");
+    BSP_Joystick_Init();
+    UARTprintf("Joystick Init Successful...\n  ");
 
     Init_grlib();
     // BSP_Test_grlib();
@@ -174,6 +169,7 @@ static  void  Task1 (char *data)
     UARTprintf("Starting Task1...\n");
 	while(1)
 	{
+        loop_grlib();
         // nextGeneration();
 		//OSTimeDlyHMSM(0, 0, 0, 50); /* Wait 1 second */
 	}
