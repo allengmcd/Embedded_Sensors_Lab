@@ -253,7 +253,8 @@ uint8_t static writecommand(uint8_t c) {
 uint8_t static writebuffer16(uint16_t *buffer, uint32_t length) {
   TFT_CS_SET(TFT_CS_LOW);
   DC_SET(DC_DATA);
-  BSP_SSI_Send_16_DMA(buffer, length);
+  //BSP_SSI_Send_16_DMA(buffer, length);
+  BSP_SSI_Send_16(buffer, length);
   TFT_CS_SET(TFT_CS_HIGH);
 
   return 0; // For now, return 0 since we are not using the response
@@ -598,21 +599,12 @@ void BSP_ST7735_LineDrawH(void *pvDisplayData, int32_t i32X1, int32_t i32X2, int
 
   int buffer_length = i32X2 - i32X1+1; // Calculate the length of the line
   // prepare the screen buffer for the line drawing
-  for(int i = 0; i < ST7735_TFTWIDTH*ST7735_TFTHEIGHT; i++) {
+  for(int i = 0; i < buffer_length; i++) {
     display->framebuffer[i] = (uint16_t)ui32Value; // Update the screen buffer with the color
-    // UARTprintf("framebuffer[%d]: %d\n  ", i, ui32Value);
   }
   
-  UARTprintf("buffer_length: %d\n  ", buffer_length);
-  UARTprintf("i32X1: %d\n  ", i32X1);
-  UARTprintf("i32Y: %d\n  ", i32Y);
-  UARTprintf("i32X2: %d\n  ", i32X2);
-  UARTprintf("i32Y: %d\n  ", i32Y);
-  
   setAddrWindow((uint8_t)i32X1, (uint8_t)i32Y, (uint8_t)i32X2, (uint8_t)i32Y); // set the address window
-  writecommand(ST7735_RAMWR); // write to RAM
-  writebuffer16(display->framebuffer, ST7735_TFTWIDTH*ST7735_TFTHEIGHT); // write the buffer to the screen
-  UARTprintf("framebuffer4...\n  ");
+  writebuffer16(display->framebuffer, buffer_length); // write the buffer to the screen
 }
 
 
@@ -626,13 +618,12 @@ void BSP_ST7735_LineDrawV(void *pvDisplayData, int32_t i32X, int32_t i32Y1, int3
 
   int buffer_length = i32Y2 - i32Y1 + 1; // Calculate the length of the line
   // prepare the screen buffer for the line drawing
-  for(int i = 0; i < ST7735_TFTWIDTH*ST7735_TFTHEIGHT; i++) {
+  for(int i = 0; i < buffer_length; i++) {
     display->framebuffer[i] = ui32Value; // Update the screen buffer with the color
   }
   
   setAddrWindow((uint8_t)i32X, (uint8_t)i32Y1, (uint8_t)i32X, (uint8_t)i32Y2); // set the address window
-  writecommand(ST7735_RAMWR); // write to RAM
-  writebuffer16(display->framebuffer, ST7735_TFTWIDTH*ST7735_TFTHEIGHT); // write the buffer to the screen
+  writebuffer16(display->framebuffer, buffer_length); // write the buffer to the screen
 }
 
 
@@ -649,27 +640,13 @@ void BSP_ST7735_RectFill(void *pvDisplayData, const tRectangle *psRect, uint32_t
   int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
   int buffer_length = width_length * height_length; // Total number of pixels in the rectangle
 
-  UARTprintf("ui32Value: %d\n  ", ui32Value);
-  UARTprintf("buffer_length: %d\n  ", buffer_length);
-  UARTprintf("i16XMin: %d\n  ", psRect->i16XMin);
-  UARTprintf("i16YMin: %d\n  ", psRect->i16YMin);
-  UARTprintf("i16XMax: %d\n  ", psRect->i16XMax);
-  UARTprintf("i16YMax: %d\n\n  ", psRect->i16YMax);
-
-  // Fill the buffer with the color
-  // for(int i = 0; i < height_length; i++) {
-  //   for(int j = 0; j < width_length; j++) {
-  //     display->framebuffer[i * width_length + j] = (uint16_t)ui32Value; // Fill the buffer with the color
-  //   }
-  // }
-    for(int j = 0; j < ST7735_TFTWIDTH*ST7735_TFTHEIGHT; j++) {
-      display->framebuffer[j] = (uint16_t)ui32Value; // Fill the buffer with the color
-    }
+  for(int j = 0; j < buffer_length; j++) {
+    display->framebuffer[j] = (uint16_t)ui32Value; // Fill the buffer with the color
+  }
   
 
   setAddrWindow((uint8_t)psRect->i16XMin, (uint8_t)psRect->i16YMin, (uint8_t)psRect->i16XMax, (uint8_t)psRect->i16YMax); // set the address window
-  writecommand(ST7735_RAMWR); // write to RAM
-  writebuffer16(display->framebuffer, ST7735_TFTWIDTH*ST7735_TFTHEIGHT); // write the buffer to the screen
+  writebuffer16(display->framebuffer, buffer_length); // write the buffer to the screen
 }
 
 
@@ -720,6 +697,25 @@ bool g_bButtonWasPressed;         // Track button state for edge detection
 // Draw cursor at the given position
 void DrawCursor(tContext *pContext, int32_t x, int32_t y)
 {
+  // Set text color to white
+  GrContextForegroundSet(pContext, ClrWhite);
+
+  // Set the font - you need to include the specific font you want to use
+  GrContextFontSet(pContext, g_psFontCmss16);
+
+  
+  char xloc[16];
+  sprintf(xloc, "xloc: %4d", x);
+  // Draw a simple string at position (10, 20)
+  GrContextBackgroundSet(pContext, ClrBlack);
+  GrStringDraw(pContext, xloc, -1, 5, 5, true);
+
+  char yloc[16];
+  sprintf(yloc, "yloc: %4d", y);
+  // Draw a simple string at position (10, 20)
+  GrContextBackgroundSet(pContext, ClrBlack);
+  GrStringDraw(pContext, yloc, -1, 64, 5, true);
+
     // GrContextForegroundSet(pContext, ClrWhite);
     GrContextForegroundSet(pContext, ClrYellow);
     GrRectFill(pContext, &(tRectangle){x, y, x + CURSOR_SIZE - 1, y + CURSOR_SIZE - 1});
@@ -743,14 +739,32 @@ void DrawButton(tContext *pContext, uint32_t clickCount)
     GrContextForegroundSet(pContext, ClrRed);
     GrRectDraw(pContext, &(tRectangle){BUTTON_X, BUTTON_Y, BUTTON_X + BUTTON_WIDTH, BUTTON_Y + BUTTON_HEIGHT});
     
-    // Draw "Click Me" text inside button
-    GrContextForegroundSet(pContext, ClrWhite);
+    // // Draw "Click Me" text inside button
+    // GrContextForegroundSet(pContext, ClrWhite);
+     GrContextFontSet(pContext, g_psFontCmss16);
     GrStringDrawCentered(pContext, "Click Me", -1, BUTTON_X + (BUTTON_WIDTH / 2), BUTTON_Y + (BUTTON_HEIGHT / 2), false);
     
-    // Format and draw click count text
-    //sprintf(countText, "Clicks: %d", clickCount);
+    // // Format and draw click count text
+    sprintf(countText, "Clicks: %d", clickCount);
     GrContextForegroundSet(pContext, ClrYellow);
     GrStringDrawCentered(pContext, countText, -1, BUTTON_X + (BUTTON_WIDTH / 2), BUTTON_Y - 8, false);
+
+
+    //  // Set text color to white
+    //  GrContextForegroundSet(pContext, ClrWhite);
+    
+    //  // Set the font - you need to include the specific font you want to use
+    //  GrContextFontSet(pContext, g_psFontCmss16);
+     
+    //  // Draw a simple string at position (10, 20)
+    //  GrStringDraw(pContext, "Hello World!", -1, 10, 20, false);
+     
+    //  // Center text horizontally (x=-1 means center)
+    //  GrStringDrawCentered(pContext, "Centered Text", -1, 64, 40, false);
+     
+    //  // Draw with background color
+    //  GrContextBackgroundSet(pContext, ClrRed);
+    //  GrStringDraw(pContext, "With Background", -1, 10, 60, true);
 }
 
 // Check if cursor is over the button
@@ -785,8 +799,11 @@ void Init_grlib()
 
 void loop_grlib()
 {
-  int32_t cursorX = ST7735_TFTWIDTH / 2;
-  int32_t cursorY = ST7735_TFTHEIGHT / 2;
+  int32_t cursorX = 0;
+  int32_t cursorY = 0;
+  int32_t cursorZ = 0;
+  
+  BSP_Joystick_Input(&cursorX, &cursorY, &cursorZ);
   DrawCursor(&g_sContext, cursorX, cursorY);
 }
 
@@ -796,129 +813,160 @@ void BSP_Test_grlib()
   tRectangle myRect = {5, 5, ST7735_TFTWIDTH-1, ST7735_TFTHEIGHT-1};  // xMin, yMin, xMax, yMax
   BSP_ST7735_RectFill(&display_st7735, &myRect, 0xF00F);
 
-  // UARTprintf("test 1...\n  ");
-  // for(int j = 0; j < ST7735_TFTHEIGHT; j++)
-  // {
-  //   // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-  //   // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-  //     myRect.i16XMin = j;
-  //     myRect.i16YMin = ST7735_TFTHEIGHT-1-j;
+  UARTprintf("test 1...\n  ");
+  for(int j = 0; j < ST7735_TFTHEIGHT; j++)
+  {
+    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
+    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
+      myRect.i16XMin = j;
+      myRect.i16YMin = ST7735_TFTHEIGHT-1-j;
 
-  //      uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-  //     BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-  //     // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  //     BSP_Delay_ms(500);
-  // }
+       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
+      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
+      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
+  }
   
-  // tRectangle myRect2 = {10, 0, 11, ST7735_TFTHEIGHT-1};  // xMin, yMin, xMax, yMax
-  // BSP_ST7735_RectFill(&display_st7735, &myRect2, 0x07E0);
-  // UARTprintf("test 2...\n  ");
+  tRectangle myRect2 = {10, 0, 11, ST7735_TFTHEIGHT-1};  // xMin, yMin, xMax, yMax
+  BSP_ST7735_RectFill(&display_st7735, &myRect2, 0x07E0);
+  UARTprintf("test 2...\n  ");
   
-  // for(int j = 0; j < ST7735_TFTWIDTH; j++)
-  // {
-  //   // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-  //   // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-  //     myRect.i16XMin = ST7735_TFTWIDTH-1-j;
-  //     myRect.i16YMin = j;
+  for(int j = 0; j < ST7735_TFTWIDTH; j++)
+  {
+    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
+    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
+      myRect.i16XMin = ST7735_TFTWIDTH-1-j;
+      myRect.i16YMin = j;
 
-  //      uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-  //     BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-  //     // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  //     BSP_Delay_ms(500);
-  // }
-  // UARTprintf("test 3...\n  ");
-  // for(int j = 0; j < ST7735_TFTHEIGHT; j++)
-  // {
-  //   // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-  //   // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-  //     myRect.i16XMin = ST7735_TFTWIDTH-1-j;
-  //     myRect.i16YMin = ST7735_TFTWIDTH-1-j;
+       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
+      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
+      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
+  }
+  UARTprintf("test 3...\n  ");
+  for(int j = 0; j < ST7735_TFTHEIGHT; j++)
+  {
+    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
+    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
+      myRect.i16XMin = ST7735_TFTWIDTH-1-j;
+      myRect.i16YMin = ST7735_TFTWIDTH-1-j;
 
-  //      uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-  //     BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-  //     // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  //     BSP_Delay_ms(500);
-  // }
-  // UARTprintf("test 4...\n  ");
-  // for(int j = 0; j < ST7735_TFTHEIGHT; j++)
-  // {
-  //   // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-  //   // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-  //     myRect.i16XMin = j;
-  //     myRect.i16YMin = j;
+       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
+      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
+      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
+  }
+  UARTprintf("test 4...\n  ");
+  for(int j = 0; j < ST7735_TFTHEIGHT; j++)
+  {
+    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
+    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
+      myRect.i16XMin = j;
+      myRect.i16YMin = j;
 
-  //      uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-  //     BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-  //     // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  //     BSP_Delay_ms(500);
-  // }
-  // UARTprintf("test 5...\n  ");
-  // for(int j = 0; j < ST7735_TFTHEIGHT; j++)
-  // {
-  //   // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-  //   // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-  //     myRect.i16XMin = 0;
-  //     myRect.i16YMin = j;
+       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
+      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
+      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
+  }
+  UARTprintf("test 5...\n  ");
+  for(int j = 0; j < ST7735_TFTHEIGHT; j++)
+  {
+    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
+    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
+      myRect.i16XMin = 0;
+      myRect.i16YMin = j;
 
-  //      uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-  //     BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-  //     // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  //     BSP_Delay_ms(500);
-  // }
-  // UARTprintf("test 6...\n  ");
-  // for(int j = 0; j < ST7735_TFTHEIGHT; j++)
-  // {
-  //   // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-  //   // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-  //     myRect.i16XMin = 0;
-  //     myRect.i16YMin = ST7735_TFTWIDTH-1-j;
+       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
+      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
+      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
+  }
+  UARTprintf("test 6...\n  ");
+  for(int j = 0; j < ST7735_TFTHEIGHT; j++)
+  {
+    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
+    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
+      myRect.i16XMin = 0;
+      myRect.i16YMin = ST7735_TFTWIDTH-1-j;
 
-  //      uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-  //     BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-  //     // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  //     BSP_Delay_ms(500);
-  // }
-  // UARTprintf("test 7...\n  ");
-  // for(int j = 0; j < ST7735_TFTHEIGHT; j++)
-  // {
-  //   // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-  //   // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-  //     myRect.i16XMin = j;
-  //     myRect.i16YMin = 0;
+       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
+      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
+      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
+  }
+  UARTprintf("test 7...\n  ");
+  for(int j = 0; j < ST7735_TFTHEIGHT; j++)
+  {
+    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
+    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
+      myRect.i16XMin = j;
+      myRect.i16YMin = 0;
 
-  //      uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-  //     BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-  //     // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  //     BSP_Delay_ms(500);
-  // }
-  // UARTprintf("test 7...\n  ");
-  // for(int j = 0; j < ST7735_TFTHEIGHT; j++)
-  // {
-  //   // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-  //   // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-  //     myRect.i16XMin = ST7735_TFTWIDTH-1-j;
-  //     myRect.i16YMin = 0;
+       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
+      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
+      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
+  }
+  UARTprintf("test 7...\n  ");
+  for(int j = 0; j < ST7735_TFTHEIGHT; j++)
+  {
+    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
+    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
+      myRect.i16XMin = ST7735_TFTWIDTH-1-j;
+      myRect.i16YMin = 0;
 
-  //      uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-  //     BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-  //     // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  //     BSP_Delay_ms(500);
-  // }
-  // for(int i = 0; i <  ST7735_TFTWIDTH; i++){
-  //   BSP_ST7735_LineDrawH(&display_st7735, 0, ST7735_TFTWIDTH, i, 0x2FF0);
-  //   BSP_Delay_ms(500);
-  // }
-  // for(int i = 0; i <  ST7735_TFTWIDTH; i++){
-  //   BSP_ST7735_LineDrawH(&display_st7735, 0, ST7735_TFTWIDTH, ST7735_TFTWIDTH-i, 0x10FF);
-  //   BSP_Delay_ms(500);
-  // }
-  // for(int i = 0; i <  ST7735_TFTWIDTH; i++){
-  //   BSP_ST7735_LineDrawV(&display_st7735, i, 0, ST7735_TFTHEIGHT, 0x8833);
-  //   BSP_Delay_ms(500);
-  // }
-  // for(int i = 0; i <  ST7735_TFTWIDTH; i++){
-  //   BSP_ST7735_LineDrawV(&display_st7735, ST7735_TFTWIDTH-i, 0, ST7735_TFTHEIGHT, 0xAA22);
-  //   BSP_Delay_ms(500);
-  // }
-//void BSP_ST7735_LineDrawH(void *pvDisplayData, int32_t i32X1, int32_t i32X2, int32_t i32Y, uint32_t ui32Value);
+       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
+      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
+      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
+  }
+  for(int i = 0; i <  ST7735_TFTWIDTH; i++){
+    BSP_ST7735_LineDrawH(&display_st7735, 0, ST7735_TFTWIDTH, i, 0x2FF0);
+  }
+  for(int i = 0; i <  ST7735_TFTWIDTH; i++){
+    BSP_ST7735_LineDrawH(&display_st7735, 0, ST7735_TFTWIDTH, ST7735_TFTWIDTH-i, 0x10FF);
+  }
+  for(int i = 0; i <  ST7735_TFTWIDTH; i++){
+    BSP_ST7735_LineDrawV(&display_st7735, i, 0, ST7735_TFTHEIGHT, 0x8833);
+  }
+  for(int i = 0; i <  ST7735_TFTWIDTH; i++){
+    BSP_ST7735_LineDrawV(&display_st7735, ST7735_TFTWIDTH-i, 0, ST7735_TFTHEIGHT, 0xAA22);
+  }
+
+
+  for(int i = 0; i <  ST7735_TFTWIDTH*ST7735_TFTHEIGHT; i++){
+    BSP_ST7735_PixelDraw(&display_st7735, i%ST7735_TFTWIDTH, i/ST7735_TFTWIDTH, i*4);
+  }
+
+  for(int i = 0; i <  ST7735_TFTWIDTH*ST7735_TFTHEIGHT; i++){
+    BSP_ST7735_PixelDraw(&display_st7735, i%ST7735_TFTWIDTH, i/ST7735_TFTWIDTH, i*4);
+  }
+
+
+  uint8_t pixelData[128]; // Buffer for pixel data
+  uint8_t palette[16]; // Simple palette if needed
+  
+  // Create a simple palette with 16 colors (if using indexed color mode)
+  for(int i = 0; i < 16; i++) {
+      palette[i*3] = i * 16;     // R
+      palette[i*3+1] = 255-i*16; // G
+      palette[i*3+2] = i % 8 * 32; // B
+  }
+  
+  // Draw horizontal gradient bands
+  for(int32_t y = 0; y < ST7735_TFTHEIGHT; y++) {
+      // Fill pixel data buffer with gradient pattern
+      for(int32_t x = 0; x < ST7735_TFTWIDTH; x++) {
+          // For 8BPP mode, create gradient pattern
+          pixelData[x] = 16; // Index into our 16-color palette
+      }
+      
+      // Draw an entire row at once
+      BSP_ST7735_PixelDrawMultiple(&display_st7735, 0, y, 0, ST7735_TFTWIDTH, 8, pixelData, palette);
+      
+      BSP_Delay_ms(5000);
+  }
+
+
+  // BSP_ST7735_PixelDrawMultiple(void *pvDisplayData, int32_t i32X, int32_t i32Y, int32_t i32X0, int32_t i32Count, 
+  //   int32_t i32BPP, const uint8_t *pui8Data, const uint8_t *pui8Palette);
+
+  // void BSP_ST7735_PixelDraw(void *pvDisplayData, int32_t i32X, int32_t i32Y, uint32_t ui32Value)
+  // void BSP_ST7735_PixelDrawMultiple(void *pvDisplayData, int32_t i32X, int32_t i32Y, int32_t i32X0, int32_t i32Count, 
+
+
+
 }

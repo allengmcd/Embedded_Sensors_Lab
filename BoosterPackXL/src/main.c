@@ -57,44 +57,12 @@ int main(void)
     
 
     UARTprintf("ST7735 Init...\n  ");
-    //ST7735_Init();
     BSP_LCD_Init();
-    // Screen_HX8353E(
-    //     GPIO_PORTH_BASE, 
-    //     GPIO_PIN_3, 
-    //     GPIO_PORTL_BASE, 
-    //     GPIO_PIN_3, 
-    //     GPIO_PORTN_BASE, 
-    //     GPIO_PIN_2, 
-    //     GPIO_PORTF_BASE, 
-    //     GPIO_PIN_2);
-    // begin();
     UARTprintf("ST7735 Init Successful...\n  ");
 
-    // uint8_t pui32DataTx[4];
-    // pui32DataTx[0] = 'Q';
-    // pui32DataTx[1] = 'S';
-    // pui32DataTx[2] = 'S';
-    // pui32DataTx[3] = 'I';
-
-    // BSP_SSI_Send(pui32DataTx, 4);
-    // ST7735_FillScreen(ST7735_RED);
-
-    // golInit();
-    
-    // uint32_t counter = 0;
-    // while(1)
-    // {
-        
-    //     // BSP_LCD_DrawString(0, 3, "JoyX=    ", BSP_LCD_Color565(255, 255, 255));
-    //     // BSP_LCD_SetCursor(5, 3);
-    //     //BSP_Delay_ms(500);
-    //     nextGeneration();
-    //     //BSP_LCD_DrawPixel(64,64,BSP_LCD_Color565(0,0,200));
-    //     //SysCtlDelay(100);
-    //     //UARTprintf("Loop #%d...\n  ", counter);
-    //     counter++;
-    // }
+    UARTprintf("Joystick Init...\n  ");
+    BSP_Joystick_Init();
+    UARTprintf("Joystick Init Successful...\n  ");
 
 
     Init_grlib();
@@ -196,6 +164,7 @@ static  void  Task1 (char *data)
     UARTprintf("Starting Task1...\n");
 	while(1)
 	{
+        loop_grlib();
         // nextGeneration();
 		//OSTimeDlyHMSM(0, 0, 0, 50); /* Wait 1 second */
 	}
