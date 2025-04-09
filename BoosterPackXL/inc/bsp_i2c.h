@@ -23,5 +23,6 @@ typedef struct {
 void BSP_I2C_Init(I2C_Struct *i2c_struct);
 void BSP_I2C_Send_Single(I2C_Struct *i2c_struct, uint8_t data);
 void BSP_I2C_Send_Burst(I2C_Struct *i2c_struct, uint8_t *data, uint32_t length);
+void BSP_I2C_Receive(I2C_Struct *i2c_struct, uint8_t register, int16_t *result);
 
 #endif

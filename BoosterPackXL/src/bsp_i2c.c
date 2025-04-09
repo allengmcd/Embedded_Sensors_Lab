@@ -73,3 +73,58 @@ void BSP_I2C_Send_Burst(I2C_Struct *i2c_struct, uint8_t *data, uint32_t length)
         }
     }
 }
+
+void BSP_I2C_Receive8(I2C_Struct *i2c_struct, uint8_t reg, int8_t *result)
+{
+    //specify that we are reading (a register address) to the
+    //slave device
+    I2CMasterSlaveAddrSet(i2c_struct->i2c_base, i2c_struct->address, true);
+
+
+    // Send register address (1st byte)
+    I2CMasterDataPut(i2c_struct->i2c_base, reg);
+    I2CMasterControl(i2c_struct->i2c_base, I2C_MASTER_CMD_SINGLE_SEND);
+    while (I2CMasterBusy(i2c_struct->i2c_base));
+
+
+    //send control byte and read from the register we
+    //specified
+    I2CMasterControl(i2c_struct->i2c_base, I2C_MASTER_CMD_SINGLE_RECEIVE);
+
+    //wait for MCU to finish transaction
+    SysCtlDelay(100);
+    while(I2CMasterBusy(i2c_struct->i2c_base));
+
+    result = I2CMasterDataGet(i2c_struct->i2c_base);
+}
+
+void BSP_I2C_Receive16(I2C_Struct *i2c_struct, uint8_t reg, int16_t *result)
+{
+    //specify that we are reading (a register address) to the
+    //slave device
+    I2CMasterSlaveAddrSet(i2c_struct->i2c_base, i2c_struct->address, true);
+
+    // Send register address (1st byte)
+    I2CMasterDataPut(i2c_struct->i2c_base, reg);
+    I2CMasterControl(i2c_struct->i2c_base, I2C_MASTER_CMD_SINGLE_SEND);
+    while (I2CMasterBusy(i2c_struct->i2c_base));
+
+    //send control byte and read from the register we
+    //specified
+    I2CMasterControl(i2c_struct->i2c_base, I2C_MASTER_CMD_BURST_RECEIVE_START);
+
+    //wait for MCU to finish transaction
+    SysCtlDelay(100);
+    while(I2CMasterBusy(i2c_struct->i2c_base));
+
+    uint8_t msb = (I2CMasterDataGet(i2c_struct->i2c_base) & 0xFF);
+
+    I2CMasterControl(i2c_struct->i2c_base, I2C_MASTER_CMD_BURST_RECEIVE_FINISH); //Receive
+
+    SysCtlDelay(100);
+    while(I2CMasterBusy(i2c_struct->i2c_base));
+
+    uint8_t lsb = (I2CMasterDataGet(i2c_struct->i2c_base) & 0xFF );
+
+    *result = (msb << 8) | lsb;
+}
