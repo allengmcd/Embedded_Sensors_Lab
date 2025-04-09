@@ -166,6 +166,16 @@
 #include "bsp_utils.h"
 #include "bsp_joystick.h"
 #include "grlib/grlib.h"
+#include "grlib/widget.h"
+#include "grlib/canvas.h"
+#include "grlib/checkbox.h"
+#include "grlib/container.h"
+#include "grlib/imgbutton.h"
+#include "grlib/keyboard.h"
+#include "grlib/listbox.h"
+#include "grlib/pushbutton.h"
+#include "grlib/radiobutton.h"
+#include "grlib/slider.h"
 
 
 

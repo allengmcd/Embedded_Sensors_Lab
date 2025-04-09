@@ -970,3 +970,401 @@ void BSP_Test_grlib()
 
 
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// Callback functions prototypes
+void OnButtonPress(tWidget *pWidget);
+void OnCheckboxChange(tWidget *pWidget, uint32_t bSelected);
+void OnRadioChange(tWidget *pWidget, uint32_t bSelected);
+void OnSliderChange(tWidget *pWidget, int32_t i32Value);
+void OnListBoxChange(tWidget *pWidget, int16_t i16Selected);
+void OnKeyboardKeyPress(tWidget *pWidget, uint8_t ui8Key);
+void OnCharMapSelect(tWidget *pWidget, char ucChar);
+
+// Test function for container and canvas
+void TestContainerAndCanvas(void)
+{
+    tCanvasWidget sBackground;
+    tContainerWidget sContainer;
+    
+    // Create a background canvas that fills the screen
+    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
+               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
+    
+    // Create a container within the background
+    ContainerInit(&sContainer, &sBackground, 10, 10, 108, 108,
+                  CONTAINER_STYLE_OUTLINE | CONTAINER_STYLE_FILL, 
+                  ClrDarkBlue, ClrWhite, ClrWhite, 0, 0, 0);
+    
+    // Add the background to the widget tree
+    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
+    
+    // Add the container to the widget tree
+    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sContainer);
+    
+    // Paint the widgets
+    WidgetPaint(WIDGET_ROOT);
+}
+
+// Test function for pushbuttons
+void TestPushButtons(void)
+{
+    tCanvasWidget sBackground;
+    tPushButtonWidget sButton1, sButton2;
+    
+    // Create a background canvas
+    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
+               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
+    
+    // Create a regular push button
+    PushButtonInit(&sButton1, &sBackground, 14, 30, 100, 25,
+                   PUSHBUTTON_STYLE_OUTLINE | PUSHBUTTON_STYLE_FILL |
+                   PUSHBUTTON_STYLE_TEXT, ClrBlue, ClrWhite, ClrWhite,
+                   ClrWhite, g_psFontCm12, "Press Me", 0, 0, 0, 0,
+                   OnButtonPress);
+    
+    // Create a rounded push button
+    PushButtonInit(&sButton2, &sBackground, 14, 70, 100, 25,
+                   PUSHBUTTON_STYLE_OUTLINE | PUSHBUTTON_STYLE_FILL |
+                   PUSHBUTTON_STYLE_TEXT | PUSHBUTTON_STYLE_ROUNDED, 
+                   ClrRed, ClrWhite, ClrWhite, ClrWhite, g_psFontCm12, 
+                   "Round Btn", 0, 0, 0, 0, OnButtonPress);
+    
+    // Add the widgets to the tree
+    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
+    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sButton1);
+    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sButton2);
+    
+    // Paint the widgets
+    WidgetPaint(WIDGET_ROOT);
+}
+
+// Test function for checkbox widgets
+void TestCheckboxes(void)
+{
+    tCanvasWidget sBackground;
+    tCheckBoxWidget sCheckBox1, sCheckBox2;
+    
+    // Create a background canvas
+    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
+               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
+    
+    // Create an unchecked checkbox
+    CheckBoxInit(&sCheckBox1, &sBackground, 14, 40, 100, 20,
+                 CHECKBOX_STYLE_OUTLINE | CHECKBOX_STYLE_TEXT |
+                 CHECKBOX_STYLE_BOX, ClrWhite, ClrWhite, ClrWhite,
+                 g_psFontCm12, "Option 1", 0, OnCheckboxChange);
+    
+    // Create a checked checkbox
+    CheckBoxInit(&sCheckBox2, &sBackground, 14, 70, 100, 20,
+                 CHECKBOX_STYLE_OUTLINE | CHECKBOX_STYLE_TEXT |
+                 CHECKBOX_STYLE_BOX | CHECKBOX_STYLE_SELECTED, 
+                 ClrWhite, ClrWhite, ClrWhite, g_psFontCm12, 
+                 "Option 2", 0, OnCheckboxChange);
+    
+    // Add the widgets to the tree
+    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
+    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sCheckBox1);
+    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sCheckBox2);
+    
+    // Paint the widgets
+    WidgetPaint(WIDGET_ROOT);
+}
+
+// Test function for radio buttons
+void TestRadioButtons(void)
+{
+    tCanvasWidget sBackground;
+    tContainerWidget sContainer;
+    tRadioButtonWidget sRadio1, sRadio2, sRadio3;
+    
+    // Create a background canvas
+    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
+               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
+    
+    // Create a container for radio buttons
+    ContainerInit(&sContainer, &sBackground, 8, 8, 112, 112,
+                  CONTAINER_STYLE_OUTLINE | CONTAINER_STYLE_FILL, 
+                  ClrDarkGray, ClrWhite, ClrWhite, g_psFontCm12, 
+                  "Select:", 0);
+    
+    // Create radio buttons
+    RadioButtonInit(&sRadio1, &sContainer, 10, 30, 90, 20,
+                    RADIOBUTTON_STYLE_OUTLINE | RADIOBUTTON_STYLE_TEXT, 
+                    ClrWhite, ClrWhite, ClrWhite, g_psFontCm12, 
+                    "Option A", 0, OnRadioChange);
+    
+    RadioButtonInit(&sRadio2, &sContainer, 10, 55, 90, 20,
+                    RADIOBUTTON_STYLE_OUTLINE | RADIOBUTTON_STYLE_TEXT |
+                    RADIOBUTTON_STYLE_SELECTED, ClrWhite, ClrWhite, 
+                    ClrWhite, g_psFontCm12, "Option B", 0, OnRadioChange);
+    
+    RadioButtonInit(&sRadio3, &sContainer, 10, 80, 90, 20,
+                    RADIOBUTTON_STYLE_OUTLINE | RADIOBUTTON_STYLE_TEXT, 
+                    ClrWhite, ClrWhite, ClrWhite, g_psFontCm12, 
+                    "Option C", 0, OnRadioChange);
+    
+    // Group the radio buttons
+    RadioButtonGroupAdd(&sRadio1, &sRadio2);
+    RadioButtonGroupAdd(&sRadio1, &sRadio3);
+    
+    // Add the widgets to the tree
+    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
+    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sContainer);
+    WidgetAdd((tWidget *)&sContainer, (tWidget *)&sRadio1);
+    WidgetAdd((tWidget *)&sContainer, (tWidget *)&sRadio2);
+    WidgetAdd((tWidget *)&sContainer, (tWidget *)&sRadio3);
+    
+    // Paint the widgets
+    WidgetPaint(WIDGET_ROOT);
+}
+
+// Test function for sliders
+void TestSliders(void)
+{
+    tCanvasWidget sBackground;
+    tSliderWidget sSliderH, sSliderV;
+    
+    // Create a background canvas
+    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
+               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
+    
+    // Create a horizontal slider
+    SliderInit(&sSliderH, &sBackground, 14, 30, 100, 20,
+               0, 100, 50, SLIDER_STYLE_FILL | SLIDER_STYLE_OUTLINE |
+               SLIDER_STYLE_TEXT | SLIDER_STYLE_BACKG_FILL,
+               ClrBlue, ClrWhite, ClrDarkGray, ClrWhite, g_psFontCm12,
+               "Horiz", OnSliderChange);
+    
+    // Create a vertical slider
+    SliderInit(&sSliderV, &sBackground, 64, 60, 20, 60,
+               0, 100, 75, SLIDER_STYLE_FILL | SLIDER_STYLE_OUTLINE |
+               SLIDER_STYLE_TEXT | SLIDER_STYLE_BACKG_FILL |
+               SLIDER_STYLE_VERTICAL, ClrRed, ClrWhite, ClrDarkGray,
+               ClrWhite, g_psFontCm12, "Vert", OnSliderChange);
+    
+    // Add the widgets to the tree
+    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
+    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sSliderH);
+    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sSliderV);
+    
+    // Paint the widgets
+    WidgetPaint(WIDGET_ROOT);
+}
+
+// Test function for listbox
+void TestListBox(void)
+{
+    tCanvasWidget sBackground;
+    char *pcItems[] = {"Item 1", "Item 2", "Item 3", "Item 4", "Item 5"};
+    tListBoxWidget sListBox;
+    
+    // Create a background canvas
+    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
+               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
+    
+    // Create a listbox
+    ListBoxInit(&sListBox, &sBackground, 14, 14, 100, 100,
+                LISTBOX_STYLE_OUTLINE | LISTBOX_STYLE_FILL,
+                ClrDarkBlue, ClrWhite, ClrBlue, ClrWhite, g_psFontCm12,
+                pcItems, 5, 0, OnListBoxChange);
+    
+    // Add the widgets to the tree
+    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
+    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sListBox);
+    
+    // Paint the widgets
+    WidgetPaint(WIDGET_ROOT);
+}
+
+// Test function for keyboard
+void TestKeyboard(void)
+{
+    tCanvasWidget sBackground;
+    tKeyboardWidget sKeyboard;
+    
+    // Create a background canvas
+    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
+               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
+    
+    // Initialize the keyboard widget - for small display, use only numbers
+    KeyboardInit(&sKeyboard, &sBackground, 5, 5, 118, 118,
+                 KEYBOARD_STYLE_FILL | KEYBOARD_STYLE_OUTLINE |
+                 KEYBOARD_STYLE_TEXT | KEYBOARD_STYLE_PRESS,
+                 ClrDarkGray, ClrWhite, ClrBlack, ClrWhite, ClrWhite,
+                 g_psFontCm12, KEYBOARD_NUMERIC_ONLY, 0, OnKeyboardKeyPress);
+    
+    // Add the widgets to the tree
+    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
+    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sKeyboard);
+    
+    // Paint the widgets
+    WidgetPaint(WIDGET_ROOT);
+}
+
+// Test function for charmap
+void TestCharMap(void)
+{
+    tCanvasWidget sBackground;
+    tCharMapWidget sCharMap;
+    
+    // Create a background canvas
+    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
+               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
+    
+    // For a small display, limit the character range to make buttons bigger
+    CharMapInit(&sCharMap, &sBackground, 5, 5, 118, 118,
+                CHARMAP_STYLE_FILL | CHARMAP_STYLE_TEXT |
+                CHARMAP_STYLE_OUTLINE | CHARMAP_STYLE_BLOCK,
+                ClrDarkGray, ClrWhite, ClrBlack, ClrBlue, g_psFontCm12,
+                '0', '9', OnCharMapSelect);  // Digits only for small display
+    
+    // Add the widgets to the tree
+    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
+    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sCharMap);
+    
+    // Paint the widgets
+    WidgetPaint(WIDGET_ROOT);
+}
+
+// Test function for image and imgbutton
+void TestImageAndImgButton(void)
+{
+    // Define a small test image (16x16 black and white checkerboard pattern)
+    const uint8_t g_pui8TestImage[] =
+    {
+        0xF0, 0xF0, 0xF0, 0xF0, 0x0F, 0x0F, 0x0F, 0x0F,
+        0xF0, 0xF0, 0xF0, 0xF0, 0x0F, 0x0F, 0x0F, 0x0F,
+        0xF0, 0xF0, 0xF0, 0xF0, 0x0F, 0x0F, 0x0F, 0x0F,
+        0xF0, 0xF0, 0xF0, 0xF0, 0x0F, 0x0F, 0x0F, 0x0F,
+        0x0F, 0x0F, 0x0F, 0x0F, 0xF0, 0xF0, 0xF0, 0xF0,
+        0x0F, 0x0F, 0x0F, 0x0F, 0xF0, 0xF0, 0xF0, 0xF0,
+        0x0F, 0x0F, 0x0F, 0x0F, 0xF0, 0xF0, 0xF0, 0xF0,
+        0x0F, 0x0F, 0x0F, 0x0F, 0xF0, 0xF0, 0xF0, 0xF0
+    };
+    
+    // Create a test image
+    const tImage sTestImage =
+    {
+        IMAGE_FMT_1BPP_UNCOMP,
+        16,
+        16,
+        sizeof(g_pui8TestImage),
+        g_pui8TestImage,
+        0,
+        0
+    };
+    
+    tCanvasWidget sBackground;
+    tCanvasWidget sImageCanvas;
+    tImageButtonWidget sImgButton;
+    
+    // Create a background canvas
+    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
+               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
+    
+    // Create a canvas for showing the image
+    CanvasInit(&sImageCanvas, &sBackground, 10, 20, 48, 48, 
+               CANVAS_STYLE_IMG, 0, 0, 0, &sTestImage, 0, 0, 0);
+    
+    // Create an image button
+    ImageButtonInit(&sImgButton, &sBackground, 70, 20, 48, 48,
+                    IMGBUTTON_STYLE_FILL | IMGBUTTON_STYLE_OUTLINE,
+                    ClrDarkGray, ClrWhite, 0, &sTestImage, 
+                    "Img", g_psFontCm12, OnButtonPress);
+    
+    // Add descriptive text
+    GrContextForegroundSet(&g_sContext, ClrWhite);
+    GrContextFontSet(&g_sContext, g_psFontCm12);
+    GrStringDrawCentered(&g_sContext, "Image", -1, 34, 80, 0);
+    GrStringDrawCentered(&g_sContext, "Button", -1, 94, 80, 0);
+    
+    // Add the widgets to the tree
+    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
+    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sImageCanvas);
+    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sImgButton);
+    
+    // Paint the widgets
+    WidgetPaint(WIDGET_ROOT);
+}
+
+// Callback implementations
+void OnButtonPress(tWidget *pWidget)
+{
+    // Handle button press event
+    // In a real app, you would do something meaningful here
+}
+
+void OnCheckboxChange(tWidget *pWidget, uint32_t bSelected)
+{
+    // Handle checkbox change event
+    // In a real app, you would do something meaningful here
+}
+
+void OnRadioChange(tWidget *pWidget, uint32_t bSelected)
+{
+    // Handle radio button change event
+    // In a real app, you would do something meaningful here
+}
+
+void OnSliderChange(tWidget *pWidget, int32_t i32Value)
+{
+    // Handle slider value change event
+    // In a real app, you would do something meaningful here
+}
+
+void OnListBoxChange(tWidget *pWidget, int16_t i16Selected)
+{
+    // Handle listbox selection change event
+    // In a real app, you would do something meaningful here
+}
+
+void OnKeyboardKeyPress(tWidget *pWidget, uint8_t ui8Key)
+{
+    // Handle keyboard key press event
+    // In a real app, you would do something meaningful here
+}
+
+void OnCharMapSelect(tWidget *pWidget, char ucChar)
+{
+    // Handle character selection from charmap
+    // In a real app, you would do something meaningful here
+}
+
+// Main function to test all widgets
+void TestGrLib(void)
+{
+    // Initialize the graphics context
+    // Note: In real code, you would need to initialize the display driver
+    // and set up the graphics context properly
+    
+    // Test the various widgets individually
+    TestContainerAndCanvas();
+    // Uncomment to test other widgets
+    // TestPushButtons();
+    // TestCheckboxes();
+    // TestRadioButtons();
+    // TestSliders();
+    // TestListBox();
+    // TestKeyboard();
+    // TestCharMap();
+    // TestImageAndImgButton();
+}
+
+
+
+
+
+
