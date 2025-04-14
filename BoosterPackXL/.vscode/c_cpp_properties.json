@@ -1,0 +1,21 @@
+{
+    "configurations": [
+        {
+            "name": "Linux",
+            "includePath": [
+                "${default}",
+                "${workspaceFolder}/third_party/uC-OS2/uC-OS2/Source",
+                "${workspaceFolder}/cfg",
+                "${workspaceFolder}/third_party/uC-OS2/uC-OS2/Ports/ARM-Cortex-M/ARMv7-M/GNU",
+                "${workspaceFolder}/inc",
+                "${workspaceFolder}/third_party/lvgl/src"
+            ],
+            "defines": [],
+            "compilerPath": "/usr/bin/clang",
+            "cStandard": "c17",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "linux-clang-x64"
+        }
+    ],
+    "version": 4
+}

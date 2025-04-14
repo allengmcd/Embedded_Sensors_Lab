@@ -1,11 +1,12 @@
 #include "includes.h"
 #include "driverlib/sysctl.h"
 #include "bsp_gpio.h"
+#include "bsp_lv_port_disp.h"
 #include "bsp_uart.h"
 #include "bsp_ssi.h"
+#include "bsp_systick_handler.h"
 #include "st7735.h"
 #include "game_of_life.h"
-#include "grlib/grlib.h"
 
 #define PART_TM4C1294NCPDT
 
@@ -70,7 +71,14 @@ int main(void)
     BSP_Joystick_Init();
     UARTprintf("Joystick Init Successful...\n  ");
 
-    Init_grlib();
+    UARTprintf("SysTickInit Init...\n  ");
+    BSP_SysTickInit();
+    UARTprintf("SysTickInit Init Successful...\n  ");
+
+    UARTprintf("LVGL Init...\n  ");
+    BSP_LVGL_Init();
+    UARTprintf("LVGL Init Successful...\n  ");
+    // Init_grlib();
     // BSP_Test_grlib();
 
     UARTprintf("Starting uC/OS-II initilization...\n");
@@ -169,7 +177,7 @@ static  void  Task1 (char *data)
     UARTprintf("Starting Task1...\n");
 	while(1)
 	{
-        loop_grlib();
+        // loop_grlib();
         // nextGeneration();
 		//OSTimeDlyHMSM(0, 0, 0, 50); /* Wait 1 second */
 	}

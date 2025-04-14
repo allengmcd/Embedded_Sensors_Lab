@@ -64,6 +64,7 @@ RTOS_PATH := $(ThirdParty_PATH)/uC-OS2
 RTOS_SRC_PATH := $(RTOS_PATH)/uC-OS2
 RTOS_CPU_PATH := $(RTOS_PATH)/uC-CPU
 RTOS_LIB_PATH := $(RTOS_PATH)/uC-LIB
+LVGL_PATH := $(ThirdParty_PATH)/lvgl/src
 
 # list of all source directories used by this project
 VPATH = \
@@ -79,7 +80,8 @@ VPATH = \
 	$(RTOS_CPU_PATH)/ARM-Cortex-M/ARMv7-M \
 	$(RTOS_CPU_PATH)/ARM-Cortex-M/ARMv7-M/GNU \
 	$(RTOS_LIB_PATH) \
-	$(RTOS_LIB_PATH)/Ports/ARM-Cortex-M4/GNU
+	$(RTOS_LIB_PATH)/Ports/ARM-Cortex-M4/GNU \
+	$(shell find $(LVGL_PATH) -type d)
 
 # list of all include directories needed by this project
 INCLUDES  = \
@@ -94,7 +96,8 @@ INCLUDES  = \
 	-I$(RTOS_CPU_PATH) \
 	-I$(RTOS_CPU_PATH)/ARM-Cortex-M/ARMv7-M/GNU \
 	-I$(RTOS_LIB_PATH) \
-	-I$(RTOS_LIB_PATH)/Ports/ARM-Cortex-M4/GNU
+	-I$(RTOS_LIB_PATH)/Ports/ARM-Cortex-M4/GNU \
+	-I$(LVGL_PATH) 
 
 #-----------------------------------------------------------------------------
 # files
@@ -114,9 +117,12 @@ C_SRCS := \
 DRIVERLIB_SRCS := \
 	$(wildcard $(DriverLib_PATH)/*.c) 
 
-GRLIB_SRCS := \
-	$(wildcard $(GRLIB_PATH)/*.c) \
-	$(wildcard $(GRLIB_FONTS_PATH)/*.c) 
+# GRLIB_SRCS := \
+# 	$(wildcard $(GRLIB_PATH)/*.c) \
+# 	$(wildcard $(GRLIB_FONTS_PATH)/*.c) 
+
+LVGL_SRCS := \
+	$(shell find $(LVGL_PATH) -name '*.c')
 
 RTOS_SRCS := \
 	os_dbg.c \
@@ -157,7 +163,7 @@ LD_SCRIPT := $(PROJECT).ld
 # LIBS      := $(DriverLib_PATH)/gcc/libdriver.a
 
 # defines
-DEFINES   := -DTARGET_IS_TM4C123_RB1 -D__FPU_PRESENT -Dgcc
+DEFINES   := -DTARGET_IS_TM4C123_RB1 -D__FPU_PRESENT -Dgcc -DLV_CONF_INCLUDE_SIMPLE
 
 # ARM CPU, ARCH, FPU, and Float-ABI types...
 # ARM_CPU:   [cortex-m0 | cortex-m0plus | cortex-m1 | cortex-m3 | cortex-m4]
@@ -175,8 +181,8 @@ ASM_FPU   := -defsym=__FPU_PRESENT=1
 # GNU-ARM toolset (NOTE: You need to adjust to your machine)
 # see https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
 #
-GNU_ARM := C:/"Program Files (x86)"/"Arm GNU Toolchain arm-none-eabi"/"14.2 rel1"/
-# GNU_ARM := /usr/
+# GNU_ARM := C:/"Program Files (x86)"/"Arm GNU Toolchain arm-none-eabi"/"14.2 rel1"/
+GNU_ARM := /usr/
 
 
 CC    := $(GNU_ARM)/bin/arm-none-eabi-gcc
@@ -200,7 +206,8 @@ RM    := rm
 
 # combine all the soruces...
 C_SRCS += $(DRIVERLIB_SRCS)
-C_SRCS += $(GRLIB_SRCS)
+# C_SRCS += $(GRLIB_SRCS)
+C_SRCS += $(LVGL_SRCS)
 C_SRCS += $(RTOS_SRCS)
 
 ifeq (rel, $(CONF)) # Release configuration ..................................
@@ -287,16 +294,16 @@ endif
 
 .PHONY : clean
 clean:
-	-del /Q $(BIN_DIR)\*.o \
-	$(BIN_DIR)\*.d \
-	$(BIN_DIR)\*.bin \
-	$(BIN_DIR)\*.elf \
-	$(BIN_DIR)\*.map
-# rm -f $(BIN_DIR)/*.o \
-# $(BIN_DIR)/*.d \
-# $(BIN_DIR)/*.bin \
-# $(BIN_DIR)/*.elf \
-# $(BIN_DIR)/*.map
+# -del /Q $(BIN_DIR)\*.o \
+# $(BIN_DIR)\*.d \
+# $(BIN_DIR)\*.bin \
+# $(BIN_DIR)\*.elf \
+# $(BIN_DIR)\*.map
+	rm -f $(BIN_DIR)/*.o \
+	$(BIN_DIR)/*.d \
+	$(BIN_DIR)/*.bin \
+	$(BIN_DIR)/*.elf \
+	$(BIN_DIR)/*.map
 
 	
 show:

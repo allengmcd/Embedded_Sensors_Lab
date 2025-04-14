@@ -75,9 +75,6 @@ enum initRFlags{
   INITR_BLACKTAB
 };
 
-#define ST7735_TFTWIDTH  128
-#define ST7735_TFTHEIGHT 128
-
 // Pin definitions
 #define ST7735_RES_Pin       GPIO_PIN_3
 #define ST7735_RES_GPIO_Port GPIO_PORTH_BASE
@@ -111,6 +108,8 @@ enum initRFlags{
 #define ST7735_YELLOW  0xFFE0
 #define ST7735_WHITE   0xFFFF
 
+
+ST7735_Display st7735_display;
 
 // 12 rows (0 to 11) and 21 characters (0 to 20)
 // Requires (11 + size*size*6*8) bytes of transmission for each character
@@ -164,38 +163,21 @@ uint16_t StTextColor = ST7735_YELLOW;
 #define ST7735_GMCTRP1 0xE0
 #define ST7735_GMCTRN1 0xE1
 
-typedef struct {
-  uint16_t *framebuffer;  // Optional buffer (if using off-screen rendering)
-  uint16_t width;         // Screen width
-  uint16_t height;        // Screen height
-} ST7735_Display;
-
-ST7735_Display st7735_display;
 
 
-void BSP_ST7735_PixelDraw(void *pvDisplayData, int32_t i32X, int32_t i32Y, uint32_t ui32Value);
-void BSP_ST7735_PixelDrawMultiple(void *pvDisplayData, int32_t i32X, int32_t i32Y, int32_t i32X0, int32_t i32Count, 
-  int32_t i32BPP, const uint8_t *pui8Data, const uint8_t *pui8Palette);
-void BSP_ST7735_LineDrawH(void *pvDisplayData, int32_t i32X1, int32_t i32X2, int32_t i32Y, uint32_t ui32Value);
-void BSP_ST7735_LineDrawV(void *pvDisplayData, int32_t i32X, int32_t i32Y1, int32_t i32Y2, uint32_t ui32Value);
-void BSP_ST7735_RectFill(void *pvDisplayData, const tRectangle *psRect, uint32_t ui32Value);
-uint32_t BSP_ST7735_ColorTranslate(void *pvDisplayData, uint32_t ui32Value);
-void BSP_ST7735_Flush(void *pvDisplayData);
-
-
-tDisplay display_st7735 = {
-  sizeof(tDisplay),             // i32Size
-  (void *)&st7735_display,       // pvDisplayData
-  ST7735_TFTWIDTH,              // ui16Width
-  ST7735_TFTHEIGHT,             // ui16Height
-  BSP_ST7735_PixelDraw,         // pfnPixelDraw
-  BSP_ST7735_PixelDrawMultiple, // pfnPixelDrawMultiple
-  BSP_ST7735_LineDrawH,         // pfnLineDrawH
-  BSP_ST7735_LineDrawV,         // pfnLineDrawV
-  BSP_ST7735_RectFill,          // pfnRectFill
-  BSP_ST7735_ColorTranslate,    // pfnColorTranslate
-  BSP_ST7735_Flush              // pfnFlush
-};
+// tDisplay display_st7735 = {
+//   sizeof(tDisplay),             // i32Size
+//   (void *)&st7735_display,       // pvDisplayData
+//   ST7735_TFTWIDTH,              // ui16Width
+//   ST7735_TFTHEIGHT,             // ui16Height
+//   BSP_ST7735_PixelDraw,         // pfnPixelDraw
+//   BSP_ST7735_PixelDrawMultiple, // pfnPixelDrawMultiple
+//   BSP_ST7735_LineDrawH,         // pfnLineDrawH
+//   BSP_ST7735_LineDrawV,         // pfnLineDrawV
+//   BSP_ST7735_RectFill,          // pfnRectFill
+//   BSP_ST7735_ColorTranslate,    // pfnColorTranslate
+//   BSP_ST7735_Flush              // pfnFlush
+// };
 
 uint16_t _ScreenBuffer[ST7735_TFTHEIGHT * ST7735_TFTWIDTH]; // Screen buffer for double buffering
 
@@ -530,8 +512,7 @@ void BSP_ST7735_PixelDraw(void *pvDisplayData, int32_t i32X, int32_t i32Y, uint3
   writebuffer16(display->framebuffer, buffer_length); // write the buffer to the screen
 }
 
-void BSP_ST7735_PixelDrawMultiple(void *pvDisplayData, int32_t i32X, int32_t i32Y, int32_t i32X0, int32_t i32Count, 
-  int32_t i32BPP, const uint8_t *pui8Data, const uint8_t *pui8Palette)
+void BSP_ST7735_PixelDrawMultiple(void *pvDisplayData, int32_t i32X1, int32_t i32Y1, int32_t i32X2, int32_t i32Y2, const uint8_t *pui8Data)
 {
   ST7735_Display *display = (ST7735_Display *)pvDisplayData;
 
@@ -540,51 +521,26 @@ void BSP_ST7735_PixelDrawMultiple(void *pvDisplayData, int32_t i32X, int32_t i32
   }
 
   // Select the starting pixel in pui8Data
-  pui8Data += i32X0 * (i32BPP / 8); // Adjust for bytes per pixel
+  int width_length = i32X2 - i32X1 + 1; // Calculate the width of the rectangle
+  int height_length = i32Y2 - i32Y1 + 1; // Calculate the height of the rectangle 
+  int buffer_length = width_length * height_length; // Total number of pixels in the rectangle
   
   // Process pixel data based on bit depth
-  for (int32_t i = 0; i < i32Count; i++) {
-      uint16_t color;
-
-      if (i32BPP == 1) {
-          // Monochrome: Each bit represents a pixel
-          int byteIndex = (i32X0 + i) / 8;
-          int bitIndex = 7 - ((i32X0 + i) % 8);
-          int pixelValue = (pui8Data[byteIndex] >> bitIndex) & 0x01;
-          color = ((uint16_t *)pui8Palette)[pixelValue];
-      }
-      else if (i32BPP == 4) {
-          // 4BPP: Each nibble represents a pixel index
-          int byteIndex = (i32X0 + i) / 2;
-          int nibbleShift = ((i32X0 + i) % 2) ? 0 : 4;
-          int pixelIndex = (pui8Data[byteIndex] >> nibbleShift) & 0x0F;
-          color = ((uint16_t *)pui8Palette)[pixelIndex];
-      }
-      else if (i32BPP == 8) {
-          // 8BPP: Each byte is a palette index
-          color = ((uint16_t *)pui8Palette)[pui8Data[i]];
-      }
-      else if (i32BPP == 16) {
-          // 16BPP: Direct 16-bit color
-          color = ((uint16_t *)pui8Data)[i];
-      }
-      else {
-          return;
-      }
-
-      display->framebuffer[i] = color; // Store in the screen buffer
+  for (int32_t i = 0; i < buffer_length; i++) {
+      display->framebuffer[i] = (uint16_t)pui8Data[i]; // Store in the screen buffer
   }
 
   // Set the address window for this line of pixels
   //ST7735_SetAddressWindow(i32X, i32Y, i32X + i32Count - 1, i32Y);
-  setAddrWindow(i32X, i32Y, i32X + i32Count - 1, i32Y);
+  setAddrWindow((uint8_t)i32X1, (uint8_t)i32Y1, (uint8_t)i32X2, (uint8_t)i32Y2);
 
   writecommand(ST7735_RAMWR); // write to RAM
 
   // Send the color data to the display
   // ST7735_WriteData((uint8_t *)ui16Buffer, i32Count * 2); // 2 bytes per pixel
-  writebuffer16(display->framebuffer, i32Count); // write the buffer to the screen
+  writebuffer16(display->framebuffer, buffer_length); // write the buffer to the screen
 }
+
 
 
 
@@ -627,7 +583,7 @@ void BSP_ST7735_LineDrawV(void *pvDisplayData, int32_t i32X, int32_t i32Y1, int3
 }
 
 
-void BSP_ST7735_RectFill(void *pvDisplayData, const tRectangle *psRect, uint32_t ui32Value)
+void BSP_ST7735_RectFill(void *pvDisplayData, uint8_t i8X1, uint8_t i8Y1, uint8_t i8X2, uint8_t i8Y2, uint32_t ui32Value)
 {
   ST7735_Display *display = (ST7735_Display *)pvDisplayData;
 
@@ -636,8 +592,8 @@ void BSP_ST7735_RectFill(void *pvDisplayData, const tRectangle *psRect, uint32_t
   }
   display->framebuffer = _ScreenBuffer;
 
-  int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-  int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
+  int width_length = i8X2 - i8X1 + 1; // Calculate the width of the rectangle
+  int height_length = i8Y2 - i8Y1 + 1; // Calculate the height of the rectangle 
   int buffer_length = width_length * height_length; // Total number of pixels in the rectangle
 
   for(int j = 0; j < buffer_length; j++) {
@@ -645,7 +601,7 @@ void BSP_ST7735_RectFill(void *pvDisplayData, const tRectangle *psRect, uint32_t
   }
   
 
-  setAddrWindow((uint8_t)psRect->i16XMin, (uint8_t)psRect->i16YMin, (uint8_t)psRect->i16XMax, (uint8_t)psRect->i16YMax); // set the address window
+  setAddrWindow(i8X1, i8Y1, i8X2, i8Y2); // set the address window
   writebuffer16(display->framebuffer, buffer_length); // write the buffer to the screen
 }
 
@@ -683,688 +639,3 @@ void BSP_ST7735_Flush(void *pvDisplayData)
 /* ********************** */
 /*   End of LCD Section   */
 /* ********************** */
-#define CURSOR_SIZE      5       // Size of cursor in pixels
-#define BUTTON_WIDTH     80      // Width of clickable button
-#define BUTTON_HEIGHT    20      // Height of clickable button
-#define BUTTON_X         32      // Button X position
-#define BUTTON_Y         40      // Button Y position
-
-
-tContext g_sContext;              // Graphics context
-uint32_t g_ui32ButtonClickCount;  // Button click counter
-bool g_bButtonWasPressed;         // Track button state for edge detection
-
-// Draw cursor at the given position
-void DrawCursor(tContext *pContext, int32_t x, int32_t y)
-{
-  // Set text color to white
-  GrContextForegroundSet(pContext, ClrWhite);
-
-  // Set the font - you need to include the specific font you want to use
-  GrContextFontSet(pContext, g_psFontCmss16);
-
-  
-  char xloc[16];
-  sprintf(xloc, "xloc: %4d", x);
-  // Draw a simple string at position (10, 20)
-  GrContextBackgroundSet(pContext, ClrBlack);
-  GrStringDraw(pContext, xloc, -1, 5, 5, true);
-
-  char yloc[16];
-  sprintf(yloc, "yloc: %4d", y);
-  // Draw a simple string at position (10, 20)
-  GrContextBackgroundSet(pContext, ClrBlack);
-  GrStringDraw(pContext, yloc, -1, 64, 5, true);
-
-    // GrContextForegroundSet(pContext, ClrWhite);
-    GrContextForegroundSet(pContext, ClrYellow);
-    GrRectFill(pContext, &(tRectangle){x, y, x + CURSOR_SIZE - 1, y + CURSOR_SIZE - 1});
-}
-
-// Draw button with click count text
-void DrawButton(tContext *pContext, uint32_t clickCount)
-{
-    char countText[16];
-    
-    // Clear the text area above button
-    GrContextForegroundSet(pContext, ClrBlack);
-    GrRectFill(pContext, &(tRectangle){BUTTON_X, BUTTON_Y - 15, BUTTON_X + BUTTON_WIDTH, BUTTON_Y - 1});
-
-    
-    // Draw the button
-    GrContextForegroundSet(pContext, ClrBlue);
-    GrRectFill(pContext, &(tRectangle){BUTTON_X, BUTTON_Y, BUTTON_X + BUTTON_WIDTH, BUTTON_Y + BUTTON_HEIGHT});
-    
-    // Draw button border
-    GrContextForegroundSet(pContext, ClrRed);
-    GrRectDraw(pContext, &(tRectangle){BUTTON_X, BUTTON_Y, BUTTON_X + BUTTON_WIDTH, BUTTON_Y + BUTTON_HEIGHT});
-    
-    // // Draw "Click Me" text inside button
-    // GrContextForegroundSet(pContext, ClrWhite);
-     GrContextFontSet(pContext, g_psFontCmss16);
-    GrStringDrawCentered(pContext, "Click Me", -1, BUTTON_X + (BUTTON_WIDTH / 2), BUTTON_Y + (BUTTON_HEIGHT / 2), false);
-    
-    // // Format and draw click count text
-    sprintf(countText, "Clicks: %d", clickCount);
-    GrContextForegroundSet(pContext, ClrYellow);
-    GrStringDrawCentered(pContext, countText, -1, BUTTON_X + (BUTTON_WIDTH / 2), BUTTON_Y - 8, false);
-
-
-    //  // Set text color to white
-    //  GrContextForegroundSet(pContext, ClrWhite);
-    
-    //  // Set the font - you need to include the specific font you want to use
-    //  GrContextFontSet(pContext, g_psFontCmss16);
-     
-    //  // Draw a simple string at position (10, 20)
-    //  GrStringDraw(pContext, "Hello World!", -1, 10, 20, false);
-     
-    //  // Center text horizontally (x=-1 means center)
-    //  GrStringDrawCentered(pContext, "Centered Text", -1, 64, 40, false);
-     
-    //  // Draw with background color
-    //  GrContextBackgroundSet(pContext, ClrRed);
-    //  GrStringDraw(pContext, "With Background", -1, 10, 60, true);
-}
-
-// Check if cursor is over the button
-bool IsButtonPressed(int32_t cursorX, int32_t cursorY)
-{
-    return (cursorX >= BUTTON_X && 
-            cursorX <= BUTTON_X + BUTTON_WIDTH &&
-            cursorY >= BUTTON_Y && 
-            cursorY <= BUTTON_Y + BUTTON_HEIGHT);
-}
-
-void Init_grlib()
-{
-  // Initialize the graphics context
-  GrContextInit(&g_sContext, &display_st7735);
-
-      // Initial values
-      int32_t cursorX = ST7735_TFTWIDTH / 2;
-      int32_t cursorY = ST7735_TFTHEIGHT / 2;
-      g_ui32ButtonClickCount = 0;
-      g_bButtonWasPressed = false;
-      
-      // Clear the screen
-      GrContextForegroundSet(&g_sContext, ClrBlack);
-      GrRectFill(&g_sContext, &(tRectangle){0, 0, ST7735_TFTWIDTH - 1, ST7735_TFTHEIGHT - 1});
-      
-      // // Draw the button initially
-      DrawButton(&g_sContext, g_ui32ButtonClickCount);
-      
-
-}
-
-void loop_grlib()
-{
-  int32_t cursorX = 0;
-  int32_t cursorY = 0;
-  int32_t cursorZ = 0;
-  
-  BSP_Joystick_Input(&cursorX, &cursorY, &cursorZ);
-  DrawCursor(&g_sContext, cursorX, cursorY);
-}
-
-
-void BSP_Test_grlib()
-{
-  tRectangle myRect = {5, 5, ST7735_TFTWIDTH-1, ST7735_TFTHEIGHT-1};  // xMin, yMin, xMax, yMax
-  BSP_ST7735_RectFill(&display_st7735, &myRect, 0xF00F);
-
-  UARTprintf("test 1...\n  ");
-  for(int j = 0; j < ST7735_TFTHEIGHT; j++)
-  {
-    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-      myRect.i16XMin = j;
-      myRect.i16YMin = ST7735_TFTHEIGHT-1-j;
-
-       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  }
-  
-  tRectangle myRect2 = {10, 0, 11, ST7735_TFTHEIGHT-1};  // xMin, yMin, xMax, yMax
-  BSP_ST7735_RectFill(&display_st7735, &myRect2, 0x07E0);
-  UARTprintf("test 2...\n  ");
-  
-  for(int j = 0; j < ST7735_TFTWIDTH; j++)
-  {
-    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-      myRect.i16XMin = ST7735_TFTWIDTH-1-j;
-      myRect.i16YMin = j;
-
-       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  }
-  UARTprintf("test 3...\n  ");
-  for(int j = 0; j < ST7735_TFTHEIGHT; j++)
-  {
-    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-      myRect.i16XMin = ST7735_TFTWIDTH-1-j;
-      myRect.i16YMin = ST7735_TFTWIDTH-1-j;
-
-       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  }
-  UARTprintf("test 4...\n  ");
-  for(int j = 0; j < ST7735_TFTHEIGHT; j++)
-  {
-    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-      myRect.i16XMin = j;
-      myRect.i16YMin = j;
-
-       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  }
-  UARTprintf("test 5...\n  ");
-  for(int j = 0; j < ST7735_TFTHEIGHT; j++)
-  {
-    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-      myRect.i16XMin = 0;
-      myRect.i16YMin = j;
-
-       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  }
-  UARTprintf("test 6...\n  ");
-  for(int j = 0; j < ST7735_TFTHEIGHT; j++)
-  {
-    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-      myRect.i16XMin = 0;
-      myRect.i16YMin = ST7735_TFTWIDTH-1-j;
-
-       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  }
-  UARTprintf("test 7...\n  ");
-  for(int j = 0; j < ST7735_TFTHEIGHT; j++)
-  {
-    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-      myRect.i16XMin = j;
-      myRect.i16YMin = 0;
-
-       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  }
-  UARTprintf("test 7...\n  ");
-  for(int j = 0; j < ST7735_TFTHEIGHT; j++)
-  {
-    // int width_length = psRect->i16XMax - psRect->i16XMin + 1; // Calculate the width of the rectangle
-    // int height_length = psRect->i16YMax - psRect->i16YMin + 1; // Calculate the height of the rectangle 
-      myRect.i16XMin = ST7735_TFTWIDTH-1-j;
-      myRect.i16YMin = 0;
-
-       uint16_t color = (j % 2 == 0) ? 0xF800 : 0x07E0;
-      BSP_ST7735_RectFill(&display_st7735, &myRect, color);
-      // BSP_ST7735_LineDrawH(&display_st7735,0, ST7735_TFTWIDTH, j, 0xFF00);
-  }
-  for(int i = 0; i <  ST7735_TFTWIDTH; i++){
-    BSP_ST7735_LineDrawH(&display_st7735, 0, ST7735_TFTWIDTH, i, 0x2FF0);
-  }
-  for(int i = 0; i <  ST7735_TFTWIDTH; i++){
-    BSP_ST7735_LineDrawH(&display_st7735, 0, ST7735_TFTWIDTH, ST7735_TFTWIDTH-i, 0x10FF);
-  }
-  for(int i = 0; i <  ST7735_TFTWIDTH; i++){
-    BSP_ST7735_LineDrawV(&display_st7735, i, 0, ST7735_TFTHEIGHT, 0x8833);
-  }
-  for(int i = 0; i <  ST7735_TFTWIDTH; i++){
-    BSP_ST7735_LineDrawV(&display_st7735, ST7735_TFTWIDTH-i, 0, ST7735_TFTHEIGHT, 0xAA22);
-  }
-
-
-  for(int i = 0; i <  ST7735_TFTWIDTH*ST7735_TFTHEIGHT; i++){
-    BSP_ST7735_PixelDraw(&display_st7735, i%ST7735_TFTWIDTH, i/ST7735_TFTWIDTH, i*4);
-  }
-
-  for(int i = 0; i <  ST7735_TFTWIDTH*ST7735_TFTHEIGHT; i++){
-    BSP_ST7735_PixelDraw(&display_st7735, i%ST7735_TFTWIDTH, i/ST7735_TFTWIDTH, i*4);
-  }
-
-
-  uint8_t pixelData[128]; // Buffer for pixel data
-  uint8_t palette[16]; // Simple palette if needed
-  
-  // Create a simple palette with 16 colors (if using indexed color mode)
-  for(int i = 0; i < 16; i++) {
-      palette[i*3] = i * 16;     // R
-      palette[i*3+1] = 255-i*16; // G
-      palette[i*3+2] = i % 8 * 32; // B
-  }
-  
-  // Draw horizontal gradient bands
-  for(int32_t y = 0; y < ST7735_TFTHEIGHT; y++) {
-      // Fill pixel data buffer with gradient pattern
-      for(int32_t x = 0; x < ST7735_TFTWIDTH; x++) {
-          // For 8BPP mode, create gradient pattern
-          pixelData[x] = 16; // Index into our 16-color palette
-      }
-      
-      // Draw an entire row at once
-      BSP_ST7735_PixelDrawMultiple(&display_st7735, 0, y, 0, ST7735_TFTWIDTH, 8, pixelData, palette);
-      
-      BSP_Delay_ms(5000);
-  }
-
-
-  // BSP_ST7735_PixelDrawMultiple(void *pvDisplayData, int32_t i32X, int32_t i32Y, int32_t i32X0, int32_t i32Count, 
-  //   int32_t i32BPP, const uint8_t *pui8Data, const uint8_t *pui8Palette);
-
-  // void BSP_ST7735_PixelDraw(void *pvDisplayData, int32_t i32X, int32_t i32Y, uint32_t ui32Value)
-  // void BSP_ST7735_PixelDrawMultiple(void *pvDisplayData, int32_t i32X, int32_t i32Y, int32_t i32X0, int32_t i32Count, 
-
-
-
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// Callback functions prototypes
-void OnButtonPress(tWidget *pWidget);
-void OnCheckboxChange(tWidget *pWidget, uint32_t bSelected);
-void OnRadioChange(tWidget *pWidget, uint32_t bSelected);
-void OnSliderChange(tWidget *pWidget, int32_t i32Value);
-void OnListBoxChange(tWidget *pWidget, int16_t i16Selected);
-void OnKeyboardKeyPress(tWidget *pWidget, uint8_t ui8Key);
-void OnCharMapSelect(tWidget *pWidget, char ucChar);
-
-// Test function for container and canvas
-void TestContainerAndCanvas(void)
-{
-    tCanvasWidget sBackground;
-    tContainerWidget sContainer;
-    
-    // Create a background canvas that fills the screen
-    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
-               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
-    
-    // Create a container within the background
-    ContainerInit(&sContainer, &sBackground, 10, 10, 108, 108,
-                  CONTAINER_STYLE_OUTLINE | CONTAINER_STYLE_FILL, 
-                  ClrDarkBlue, ClrWhite, ClrWhite, 0, 0, 0);
-    
-    // Add the background to the widget tree
-    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
-    
-    // Add the container to the widget tree
-    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sContainer);
-    
-    // Paint the widgets
-    WidgetPaint(WIDGET_ROOT);
-}
-
-// Test function for pushbuttons
-void TestPushButtons(void)
-{
-    tCanvasWidget sBackground;
-    tPushButtonWidget sButton1, sButton2;
-    
-    // Create a background canvas
-    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
-               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
-    
-    // Create a regular push button
-    PushButtonInit(&sButton1, &sBackground, 14, 30, 100, 25,
-                   PUSHBUTTON_STYLE_OUTLINE | PUSHBUTTON_STYLE_FILL |
-                   PUSHBUTTON_STYLE_TEXT, ClrBlue, ClrWhite, ClrWhite,
-                   ClrWhite, g_psFontCm12, "Press Me", 0, 0, 0, 0,
-                   OnButtonPress);
-    
-    // Create a rounded push button
-    PushButtonInit(&sButton2, &sBackground, 14, 70, 100, 25,
-                   PUSHBUTTON_STYLE_OUTLINE | PUSHBUTTON_STYLE_FILL |
-                   PUSHBUTTON_STYLE_TEXT | PUSHBUTTON_STYLE_ROUNDED, 
-                   ClrRed, ClrWhite, ClrWhite, ClrWhite, g_psFontCm12, 
-                   "Round Btn", 0, 0, 0, 0, OnButtonPress);
-    
-    // Add the widgets to the tree
-    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
-    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sButton1);
-    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sButton2);
-    
-    // Paint the widgets
-    WidgetPaint(WIDGET_ROOT);
-}
-
-// Test function for checkbox widgets
-void TestCheckboxes(void)
-{
-    tCanvasWidget sBackground;
-    tCheckBoxWidget sCheckBox1, sCheckBox2;
-    
-    // Create a background canvas
-    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
-               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
-    
-    // Create an unchecked checkbox
-    CheckBoxInit(&sCheckBox1, &sBackground, 14, 40, 100, 20,
-                 CHECKBOX_STYLE_OUTLINE | CHECKBOX_STYLE_TEXT |
-                 CHECKBOX_STYLE_BOX, ClrWhite, ClrWhite, ClrWhite,
-                 g_psFontCm12, "Option 1", 0, OnCheckboxChange);
-    
-    // Create a checked checkbox
-    CheckBoxInit(&sCheckBox2, &sBackground, 14, 70, 100, 20,
-                 CHECKBOX_STYLE_OUTLINE | CHECKBOX_STYLE_TEXT |
-                 CHECKBOX_STYLE_BOX | CHECKBOX_STYLE_SELECTED, 
-                 ClrWhite, ClrWhite, ClrWhite, g_psFontCm12, 
-                 "Option 2", 0, OnCheckboxChange);
-    
-    // Add the widgets to the tree
-    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
-    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sCheckBox1);
-    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sCheckBox2);
-    
-    // Paint the widgets
-    WidgetPaint(WIDGET_ROOT);
-}
-
-// Test function for radio buttons
-void TestRadioButtons(void)
-{
-    tCanvasWidget sBackground;
-    tContainerWidget sContainer;
-    tRadioButtonWidget sRadio1, sRadio2, sRadio3;
-    
-    // Create a background canvas
-    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
-               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
-    
-    // Create a container for radio buttons
-    ContainerInit(&sContainer, &sBackground, 8, 8, 112, 112,
-                  CONTAINER_STYLE_OUTLINE | CONTAINER_STYLE_FILL, 
-                  ClrDarkGray, ClrWhite, ClrWhite, g_psFontCm12, 
-                  "Select:", 0);
-    
-    // Create radio buttons
-    RadioButtonInit(&sRadio1, &sContainer, 10, 30, 90, 20,
-                    RADIOBUTTON_STYLE_OUTLINE | RADIOBUTTON_STYLE_TEXT, 
-                    ClrWhite, ClrWhite, ClrWhite, g_psFontCm12, 
-                    "Option A", 0, OnRadioChange);
-    
-    RadioButtonInit(&sRadio2, &sContainer, 10, 55, 90, 20,
-                    RADIOBUTTON_STYLE_OUTLINE | RADIOBUTTON_STYLE_TEXT |
-                    RADIOBUTTON_STYLE_SELECTED, ClrWhite, ClrWhite, 
-                    ClrWhite, g_psFontCm12, "Option B", 0, OnRadioChange);
-    
-    RadioButtonInit(&sRadio3, &sContainer, 10, 80, 90, 20,
-                    RADIOBUTTON_STYLE_OUTLINE | RADIOBUTTON_STYLE_TEXT, 
-                    ClrWhite, ClrWhite, ClrWhite, g_psFontCm12, 
-                    "Option C", 0, OnRadioChange);
-    
-    // Group the radio buttons
-    RadioButtonGroupAdd(&sRadio1, &sRadio2);
-    RadioButtonGroupAdd(&sRadio1, &sRadio3);
-    
-    // Add the widgets to the tree
-    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
-    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sContainer);
-    WidgetAdd((tWidget *)&sContainer, (tWidget *)&sRadio1);
-    WidgetAdd((tWidget *)&sContainer, (tWidget *)&sRadio2);
-    WidgetAdd((tWidget *)&sContainer, (tWidget *)&sRadio3);
-    
-    // Paint the widgets
-    WidgetPaint(WIDGET_ROOT);
-}
-
-// Test function for sliders
-void TestSliders(void)
-{
-    tCanvasWidget sBackground;
-    tSliderWidget sSliderH, sSliderV;
-    
-    // Create a background canvas
-    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
-               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
-    
-    // Create a horizontal slider
-    SliderInit(&sSliderH, &sBackground, 14, 30, 100, 20,
-               0, 100, 50, SLIDER_STYLE_FILL | SLIDER_STYLE_OUTLINE |
-               SLIDER_STYLE_TEXT | SLIDER_STYLE_BACKG_FILL,
-               ClrBlue, ClrWhite, ClrDarkGray, ClrWhite, g_psFontCm12,
-               "Horiz", OnSliderChange);
-    
-    // Create a vertical slider
-    SliderInit(&sSliderV, &sBackground, 64, 60, 20, 60,
-               0, 100, 75, SLIDER_STYLE_FILL | SLIDER_STYLE_OUTLINE |
-               SLIDER_STYLE_TEXT | SLIDER_STYLE_BACKG_FILL |
-               SLIDER_STYLE_VERTICAL, ClrRed, ClrWhite, ClrDarkGray,
-               ClrWhite, g_psFontCm12, "Vert", OnSliderChange);
-    
-    // Add the widgets to the tree
-    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
-    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sSliderH);
-    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sSliderV);
-    
-    // Paint the widgets
-    WidgetPaint(WIDGET_ROOT);
-}
-
-// Test function for listbox
-void TestListBox(void)
-{
-    tCanvasWidget sBackground;
-    char *pcItems[] = {"Item 1", "Item 2", "Item 3", "Item 4", "Item 5"};
-    tListBoxWidget sListBox;
-    
-    // Create a background canvas
-    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
-               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
-    
-    // Create a listbox
-    ListBoxInit(&sListBox, &sBackground, 14, 14, 100, 100,
-                LISTBOX_STYLE_OUTLINE | LISTBOX_STYLE_FILL,
-                ClrDarkBlue, ClrWhite, ClrBlue, ClrWhite, g_psFontCm12,
-                pcItems, 5, 0, OnListBoxChange);
-    
-    // Add the widgets to the tree
-    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
-    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sListBox);
-    
-    // Paint the widgets
-    WidgetPaint(WIDGET_ROOT);
-}
-
-// Test function for keyboard
-void TestKeyboard(void)
-{
-    tCanvasWidget sBackground;
-    tKeyboardWidget sKeyboard;
-    
-    // Create a background canvas
-    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
-               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
-    
-    // Initialize the keyboard widget - for small display, use only numbers
-    KeyboardInit(&sKeyboard, &sBackground, 5, 5, 118, 118,
-                 KEYBOARD_STYLE_FILL | KEYBOARD_STYLE_OUTLINE |
-                 KEYBOARD_STYLE_TEXT | KEYBOARD_STYLE_PRESS,
-                 ClrDarkGray, ClrWhite, ClrBlack, ClrWhite, ClrWhite,
-                 g_psFontCm12, KEYBOARD_NUMERIC_ONLY, 0, OnKeyboardKeyPress);
-    
-    // Add the widgets to the tree
-    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
-    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sKeyboard);
-    
-    // Paint the widgets
-    WidgetPaint(WIDGET_ROOT);
-}
-
-// Test function for charmap
-void TestCharMap(void)
-{
-    tCanvasWidget sBackground;
-    tCharMapWidget sCharMap;
-    
-    // Create a background canvas
-    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
-               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
-    
-    // For a small display, limit the character range to make buttons bigger
-    CharMapInit(&sCharMap, &sBackground, 5, 5, 118, 118,
-                CHARMAP_STYLE_FILL | CHARMAP_STYLE_TEXT |
-                CHARMAP_STYLE_OUTLINE | CHARMAP_STYLE_BLOCK,
-                ClrDarkGray, ClrWhite, ClrBlack, ClrBlue, g_psFontCm12,
-                '0', '9', OnCharMapSelect);  // Digits only for small display
-    
-    // Add the widgets to the tree
-    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
-    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sCharMap);
-    
-    // Paint the widgets
-    WidgetPaint(WIDGET_ROOT);
-}
-
-// Test function for image and imgbutton
-void TestImageAndImgButton(void)
-{
-    // Define a small test image (16x16 black and white checkerboard pattern)
-    const uint8_t g_pui8TestImage[] =
-    {
-        0xF0, 0xF0, 0xF0, 0xF0, 0x0F, 0x0F, 0x0F, 0x0F,
-        0xF0, 0xF0, 0xF0, 0xF0, 0x0F, 0x0F, 0x0F, 0x0F,
-        0xF0, 0xF0, 0xF0, 0xF0, 0x0F, 0x0F, 0x0F, 0x0F,
-        0xF0, 0xF0, 0xF0, 0xF0, 0x0F, 0x0F, 0x0F, 0x0F,
-        0x0F, 0x0F, 0x0F, 0x0F, 0xF0, 0xF0, 0xF0, 0xF0,
-        0x0F, 0x0F, 0x0F, 0x0F, 0xF0, 0xF0, 0xF0, 0xF0,
-        0x0F, 0x0F, 0x0F, 0x0F, 0xF0, 0xF0, 0xF0, 0xF0,
-        0x0F, 0x0F, 0x0F, 0x0F, 0xF0, 0xF0, 0xF0, 0xF0
-    };
-    
-    // Create a test image
-    const tImage sTestImage =
-    {
-        IMAGE_FMT_1BPP_UNCOMP,
-        16,
-        16,
-        sizeof(g_pui8TestImage),
-        g_pui8TestImage,
-        0,
-        0
-    };
-    
-    tCanvasWidget sBackground;
-    tCanvasWidget sImageCanvas;
-    tImageButtonWidget sImgButton;
-    
-    // Create a background canvas
-    CanvasInit(&sBackground, &g_sContext, 0, 0, 128, 128, 
-               CANVAS_STYLE_FILL, ClrBlack, 0, 0, 0, 0, 0, 0);
-    
-    // Create a canvas for showing the image
-    CanvasInit(&sImageCanvas, &sBackground, 10, 20, 48, 48, 
-               CANVAS_STYLE_IMG, 0, 0, 0, &sTestImage, 0, 0, 0);
-    
-    // Create an image button
-    ImageButtonInit(&sImgButton, &sBackground, 70, 20, 48, 48,
-                    IMGBUTTON_STYLE_FILL | IMGBUTTON_STYLE_OUTLINE,
-                    ClrDarkGray, ClrWhite, 0, &sTestImage, 
-                    "Img", g_psFontCm12, OnButtonPress);
-    
-    // Add descriptive text
-    GrContextForegroundSet(&g_sContext, ClrWhite);
-    GrContextFontSet(&g_sContext, g_psFontCm12);
-    GrStringDrawCentered(&g_sContext, "Image", -1, 34, 80, 0);
-    GrStringDrawCentered(&g_sContext, "Button", -1, 94, 80, 0);
-    
-    // Add the widgets to the tree
-    WidgetAdd(WIDGET_ROOT, (tWidget *)&sBackground);
-    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sImageCanvas);
-    WidgetAdd((tWidget *)&sBackground, (tWidget *)&sImgButton);
-    
-    // Paint the widgets
-    WidgetPaint(WIDGET_ROOT);
-}
-
-// Callback implementations
-void OnButtonPress(tWidget *pWidget)
-{
-    // Handle button press event
-    // In a real app, you would do something meaningful here
-}
-
-void OnCheckboxChange(tWidget *pWidget, uint32_t bSelected)
-{
-    // Handle checkbox change event
-    // In a real app, you would do something meaningful here
-}
-
-void OnRadioChange(tWidget *pWidget, uint32_t bSelected)
-{
-    // Handle radio button change event
-    // In a real app, you would do something meaningful here
-}
-
-void OnSliderChange(tWidget *pWidget, int32_t i32Value)
-{
-    // Handle slider value change event
-    // In a real app, you would do something meaningful here
-}
-
-void OnListBoxChange(tWidget *pWidget, int16_t i16Selected)
-{
-    // Handle listbox selection change event
-    // In a real app, you would do something meaningful here
-}
-
-void OnKeyboardKeyPress(tWidget *pWidget, uint8_t ui8Key)
-{
-    // Handle keyboard key press event
-    // In a real app, you would do something meaningful here
-}
-
-void OnCharMapSelect(tWidget *pWidget, char ucChar)
-{
-    // Handle character selection from charmap
-    // In a real app, you would do something meaningful here
-}
-
-// Main function to test all widgets
-void TestGrLib(void)
-{
-    // Initialize the graphics context
-    // Note: In real code, you would need to initialize the display driver
-    // and set up the graphics context properly
-    
-    // Test the various widgets individually
-    TestContainerAndCanvas();
-    // Uncomment to test other widgets
-    // TestPushButtons();
-    // TestCheckboxes();
-    // TestRadioButtons();
-    // TestSliders();
-    // TestListBox();
-    // TestKeyboard();
-    // TestCharMap();
-    // TestImageAndImgButton();
-}
-
-
-
-
-
-
