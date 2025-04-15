@@ -1,3 +1,6 @@
 [submodule "BoosterPackXL/third_party/lvgl"]
 	path = BoosterPackXL/third_party/lvgl
 	url = https://github.com/lvgl/lvgl.git
+[submodule "BoostPackXL_cmake/third_party/lvgl"]
+	path = BoostPackXL_cmake/third_party/lvgl
+	url = https://github.com/lvgl/lvgl.git
