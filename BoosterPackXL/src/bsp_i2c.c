@@ -95,7 +95,7 @@ void BSP_I2C_Receive8(I2C_Struct *i2c_struct, uint8_t reg, int8_t *result)
     SysCtlDelay(100);
     while(I2CMasterBusy(i2c_struct->i2c_base));
 
-    result = I2CMasterDataGet(i2c_struct->i2c_base);
+    result = (int8_t *)I2CMasterDataGet(i2c_struct->i2c_base);
 }
 
 void BSP_I2C_Receive16(I2C_Struct *i2c_struct, uint8_t reg, int16_t *result)

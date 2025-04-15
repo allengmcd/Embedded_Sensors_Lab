@@ -35,7 +35,7 @@ static void lvgl_tick_cb(void)
 
 void st7735_flush_cb(lv_display_t * display, const lv_area_t * area, uint8_t * px_map)
 {
-    BSP_ST7735_PixelDrawMultiple(&st7735_display, area->x1, area->y1, area->x2, area->y2, (uint16_t *)px_map);
+    BSP_ST7735_PixelDrawMultiple(&st7735_display, area->x1, area->y1, area->x2, area->y2, (uint8_t *)px_map);
 
     /* IMPORTANT!!!
      * Inform LVGL that flushing is complete so buffer can be modified again. */

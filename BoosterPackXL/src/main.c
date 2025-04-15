@@ -6,6 +6,7 @@
 #include "bsp_ssi.h"
 #include "bsp_systick_handler.h"
 #include "st7735.h"
+#include "lvgl.h"
 #include "game_of_life.h"
 
 #define PART_TM4C1294NCPDT
@@ -63,7 +64,7 @@ int main(void)
 
     
     UARTprintf("PCA9685 Init...\n  ");
-    PCA9685_Init();
+    // PCA9685_Init();
     UARTprintf("PCA9685 Init Successful...\n  ");
 
 
@@ -171,15 +172,47 @@ OSTaskCreate((void (*)(void *)) Task2,           /* Create the second task      
                          										
 }
 
+
+
+// Simple function to just fill the screen black
+void create_black_screen(void)
+{
+    // Get the active screen
+    lv_obj_t * scr = lv_scr_act();
+    
+    // Set the background color to black
+    lv_obj_set_style_bg_color(scr, lv_color_black(), 0);
+    lv_obj_set_style_bg_opa(scr, LV_OPA_COVER, 0);
+    
+    // Force a refresh
+    lv_disp_trig_activity(lv_disp_get_default());
+}
+
+// Sample initialization function - modify based on your setup
+void lvgl_demo_init(void)
+{
+    // LVGL has been initialized elsewhere
+    // This function only creates the black screen
+    create_black_screen();
+}
+
+
+
+
+
 static  void  Task1 (char *data)
 {
   
     UARTprintf("Starting Task1...\n");
+    // Create our simple UI
+    lvgl_demo_init();
 	while(1)
 	{
+        // Call lv_timer_handler periodically
+        lv_timer_handler();
         // loop_grlib();
         // nextGeneration();
-		//OSTimeDlyHMSM(0, 0, 0, 50); /* Wait 1 second */
+		OSTimeDlyHMSM(0, 0, 0, 50); /* Wait 1 second */
 	}
 }
 

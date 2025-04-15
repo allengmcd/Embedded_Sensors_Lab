@@ -182,7 +182,8 @@ ASM_FPU   := -defsym=__FPU_PRESENT=1
 # see https://developer.arm.com/open-source/gnu-toolchain/gnu-rm/downloads
 #
 # GNU_ARM := C:/"Program Files (x86)"/"Arm GNU Toolchain arm-none-eabi"/"14.2 rel1"/
-GNU_ARM := /usr/
+# GNU_ARM := /usr/
+GNU_ARM := "/c/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.2 rel1/"
 
 
 CC    := $(GNU_ARM)/bin/arm-none-eabi-gcc
