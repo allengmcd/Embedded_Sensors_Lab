@@ -23,7 +23,8 @@
         "functional": "c",
         "tuple": "c",
         "type_traits": "c",
-        "utility": "c"
+        "utility": "c",
+        "bsp_gpio.h": "c"
     },
     "cmake.sourceDirectory": "D:/AllenDevelopment/git/allengmcd/Embedded_Sensors_Lab/BoosterPackXL/third_party/lvgl/env_support/esp/rlottie"
 }
