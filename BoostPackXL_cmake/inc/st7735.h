@@ -157,6 +157,8 @@
 // J2.19 servo PWM                       {TM4C123 PB2, MSP432 P2.5}
 // J4.35 nothing                         {TM4C123 PC6, MSP432 P6.7}
 
+#ifndef ST7735_H
+#define ST7735_H
 
 // ------------Includes------------
 #include "includes.h"
@@ -164,9 +166,9 @@
 #include "bsp_gpio.h"
 #include "bsp_ssi.h"
 #include "bsp_utils.h"
-#include "grlib/grlib.h"
 
-
+#define ST7735_TFTWIDTH  128
+#define ST7735_TFTHEIGHT 128
 
 
 //color constants                  red  grn  blu
@@ -183,6 +185,13 @@
 #define LCD_WHITE      0xFFFF   // 255, 255, 255
 #define LCD_GREY       0x8410   // 128, 128, 128
 
+typedef struct {
+   uint16_t *framebuffer;  // Optional buffer (if using off-screen rendering)
+   uint16_t width;         // Screen width
+   uint16_t height;        // Screen height
+ } ST7735_Display;
+
+extern ST7735_Display st7735_display;
 
 // ------------BSP_LCD_Init------------
 // Initialize the SPI and GPIO, which correspond with
@@ -193,10 +202,11 @@
 void BSP_LCD_Init(void);
 
 void BSP_ST7735_PixelDraw(void *pvDisplayData, int32_t i32X, int32_t i32Y, uint32_t ui32Value);
-void BSP_ST7735_PixelDrawMultiple(void *pvDisplayData, int32_t i32X, int32_t i32Y, int32_t i32X0, int32_t i32Count, 
-  int32_t i32BPP, const uint8_t *pui8Data, const uint8_t *pui8Palette);
+void BSP_ST7735_PixelDrawMultiple(void *pvDisplayData, int32_t i32X1, int32_t i32Y1, int32_t i32X2, int32_t i32Y2, const uint16_t *pui8Data);
 void BSP_ST7735_LineDrawH(void *pvDisplayData, int32_t i32X1, int32_t i32X2, int32_t i32Y, uint32_t ui32Value);
 void BSP_ST7735_LineDrawV(void *pvDisplayData, int32_t i32X, int32_t i32Y1, int32_t i32Y2, uint32_t ui32Value);
-void BSP_ST7735_RectFill(void *pvDisplayData, const tRectangle *psRect, uint32_t ui32Value);
-uint32_t BSP_ST7735_ColorTranslate(void *pvDisplayData, uint32_t ui32Value);
+void BSP_ST7735_RectFill(void *pvDisplayData, uint8_t i8X1, uint8_t i8Y1, uint8_t i8X2, uint8_t i8Y2, uint32_t ui32Value);
+uint32_t BSP_ST7735_ColorTranslate(volatile void *pvDisplayData, uint32_t ui32Value);
 void BSP_ST7735_Flush(void *pvDisplayData);
+
+#endif
