@@ -4,14 +4,13 @@ set(CMAKE_SYSTEM_PROCESSOR arm)
 
 # Adjust these paths to match your ARM GCC installation
 set(TOOLCHAIN_PREFIX arm-none-eabi-)
-# set(TOOLCHAIN_PATH "/usr/bin") # Adjust to your ARM GCC installation path
-set(TOOLCHAIN_PATH "C:/Program Files (x86)/Arm GNU Toolchain arm-none-eabi/14.2 rel1/bin") # Adjust to your ARM GCC installation path
+set(TOOLCHAIN_PATH "/usr/bin") # Adjust to your ARM GCC installation path
 
 # Set compiler tools
-set(CMAKE_C_COMPILER ${TOOLCHAIN_PATH}/${TOOLCHAIN_PREFIX}gcc.exe)
-set(CMAKE_ASM_COMPILER ${TOOLCHAIN_PATH}/${TOOLCHAIN_PREFIX}gcc.exe)
-set(CMAKE_OBJCOPY ${TOOLCHAIN_PATH}/${TOOLCHAIN_PREFIX}objcopy.exe)
-set(CMAKE_SIZE ${TOOLCHAIN_PATH}/${TOOLCHAIN_PREFIX}size.exe)
+set(CMAKE_C_COMPILER ${TOOLCHAIN_PATH}/${TOOLCHAIN_PREFIX}gcc)
+set(CMAKE_ASM_COMPILER ${TOOLCHAIN_PATH}/${TOOLCHAIN_PREFIX}gcc)
+set(CMAKE_OBJCOPY ${TOOLCHAIN_PATH}/${TOOLCHAIN_PREFIX}objcopy)
+set(CMAKE_SIZE ${TOOLCHAIN_PATH}/${TOOLCHAIN_PREFIX}size)
 
 # MCU specific flags
 set(CPU_FLAGS "-mcpu=cortex-m4 -mthumb -mfloat-abi=hard -mfpu=fpv4-sp-d16")

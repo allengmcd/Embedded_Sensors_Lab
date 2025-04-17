@@ -1,21 +1,26 @@
 {
-    "version": 3,
-    "cmakeMinimumRequired": {
-      "major": 3,
-      "minor": 21,
-      "patch": 0
+  "version": 3,
+  "cmakeMinimumRequired": {
+    "major": 3,
+    "minor": 21,
+    "patch": 0
+  },
+  "configurePresets": [
+    {
+      "name": "arm-gcc-windows",
+      "displayName": "ARM GCC Toolchain (Windows)",
+      "generator": "Ninja",
+      "description": "Cross-compile with arm-none-eabi-gcc on Windows",
+      "toolchainFile": "cmake/arm-gcc-toolchain-windows.cmake",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
     },
-    "configurePresets": [
-      {
-        "name": "arm-gcc",
-        "displayName": "ARM GCC Toolchain",
-        "generator": "Ninja",
-        "description": "Cross-compile with arm-none-eabi-gcc",
-        "toolchainFile": "cmake/arm-gcc-toolchain.cmake",
-        "cacheVariables": {
-          "CMAKE_BUILD_TYPE": "Debug"
-        }
-      }
-    ]
-  }
-  
+    {
+      "name": "arm-gcc-linux",
+      "displayName": "ARM GCC Toolchain (Linux)",
+      "generator": "Ninja",
+      "description": "Cross-compile with arm-none-eabi-gcc on Linux",
+      "toolchainFile": "cmake/arm-gcc-toolchain-linux.cmake",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" }
+    }
+  ]
+}

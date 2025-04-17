@@ -1,7 +1,7 @@
 #include "includes.h"
 #include "driverlib/sysctl.h"
 #include "bsp_gpio.h"
-// #include "bsp_lv_port_disp.h"
+#include "bsp_lv_port_disp.h"
 #include "bsp_uart.h"
 #include "bsp_ssi.h"
 #include "st7735.h"
@@ -81,7 +81,7 @@ int main(void)
     // ST7735_FillScreen(ST7735_RED);
 
     UARTprintf("LVGL Init...\n  ");
-    // BSP_LVGL_Init();
+    BSP_LVGL_Init();
     UARTprintf("LVGL Init Successful...\n  ");
     // uint32_t counter = 0;
     // while(1)

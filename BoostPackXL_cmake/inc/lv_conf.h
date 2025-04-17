@@ -481,93 +481,93 @@
 
 /*Documentation of the widgets: https://docs.lvgl.io/latest/en/html/widgets/index.html*/
 
-#define LV_WIDGETS_HAS_DEFAULT_VALUE  1
+// #define LV_WIDGETS_HAS_DEFAULT_VALUE  1
 
-#define LV_USE_ANIMIMG    1
+// #define LV_USE_ANIMIMG    1
 
-#define LV_USE_ARC        1
+// #define LV_USE_ARC        1
 
-#define LV_USE_BAR        1
+// #define LV_USE_BAR        1
 
-#define LV_USE_BUTTON        1
+// #define LV_USE_BUTTON        1
 
-#define LV_USE_BUTTONMATRIX  1
+// #define LV_USE_BUTTONMATRIX  1
 
-#define LV_USE_CALENDAR   1
-#if LV_USE_CALENDAR
-    #define LV_CALENDAR_WEEK_STARTS_MONDAY 0
-    #if LV_CALENDAR_WEEK_STARTS_MONDAY
-        #define LV_CALENDAR_DEFAULT_DAY_NAMES {"Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"}
-    #else
-        #define LV_CALENDAR_DEFAULT_DAY_NAMES {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"}
-    #endif
+// #define LV_USE_CALENDAR   1
+// #if LV_USE_CALENDAR
+//     #define LV_CALENDAR_WEEK_STARTS_MONDAY 0
+//     #if LV_CALENDAR_WEEK_STARTS_MONDAY
+//         #define LV_CALENDAR_DEFAULT_DAY_NAMES {"Mo", "Tu", "We", "Th", "Fr", "Sa", "Su"}
+//     #else
+//         #define LV_CALENDAR_DEFAULT_DAY_NAMES {"Su", "Mo", "Tu", "We", "Th", "Fr", "Sa"}
+//     #endif
 
-    #define LV_CALENDAR_DEFAULT_MONTH_NAMES {"January", "February", "March",  "April", "May",  "June", "July", "August", "September", "October", "November", "December"}
-    #define LV_USE_CALENDAR_HEADER_ARROW 1
-    #define LV_USE_CALENDAR_HEADER_DROPDOWN 1
-#endif  /*LV_USE_CALENDAR*/
+//     #define LV_CALENDAR_DEFAULT_MONTH_NAMES {"January", "February", "March",  "April", "May",  "June", "July", "August", "September", "October", "November", "December"}
+//     #define LV_USE_CALENDAR_HEADER_ARROW 1
+//     #define LV_USE_CALENDAR_HEADER_DROPDOWN 1
+// #endif  /*LV_USE_CALENDAR*/
 
-#define LV_USE_CANVAS     1
+// #define LV_USE_CANVAS     1
 
-#define LV_USE_CHART      1
+// #define LV_USE_CHART      1
 
-#define LV_USE_CHECKBOX   1
+// #define LV_USE_CHECKBOX   1
 
-#define LV_USE_DROPDOWN   1   /*Requires: lv_label*/
+// #define LV_USE_DROPDOWN   1   /*Requires: lv_label*/
 
-#define LV_USE_IMAGE      1   /*Requires: lv_label*/
+// #define LV_USE_IMAGE      1   /*Requires: lv_label*/
 
-#define LV_USE_IMAGEBUTTON     1
+// #define LV_USE_IMAGEBUTTON     1
 
-#define LV_USE_KEYBOARD   1
+// #define LV_USE_KEYBOARD   1
 
-#define LV_USE_LABEL      1
-#if LV_USE_LABEL
-    #define LV_LABEL_TEXT_SELECTION 1 /*Enable selecting text of the label*/
-    #define LV_LABEL_LONG_TXT_HINT 1  /*Store some extra info in labels to speed up drawing of very long texts*/
-    #define LV_LABEL_WAIT_CHAR_COUNT 3  /*The count of wait chart*/
-#endif
+// #define LV_USE_LABEL      1
+// #if LV_USE_LABEL
+//     #define LV_LABEL_TEXT_SELECTION 1 /*Enable selecting text of the label*/
+//     #define LV_LABEL_LONG_TXT_HINT 1  /*Store some extra info in labels to speed up drawing of very long texts*/
+//     #define LV_LABEL_WAIT_CHAR_COUNT 3  /*The count of wait chart*/
+// #endif
 
-#define LV_USE_LED        1
+// #define LV_USE_LED        1
 
-#define LV_USE_LINE       1
+// #define LV_USE_LINE       1
 
-#define LV_USE_LIST       1
+// #define LV_USE_LIST       1
 
-#define LV_USE_MENU       1
+// #define LV_USE_MENU       1
 
-#define LV_USE_MSGBOX     1
+// #define LV_USE_MSGBOX     1
 
-#define LV_USE_ROLLER     1   /*Requires: lv_label*/
+// #define LV_USE_ROLLER     1   /*Requires: lv_label*/
 
-#define LV_USE_SCALE      1
+// #define LV_USE_SCALE      1
 
-#define LV_USE_SLIDER     1   /*Requires: lv_bar*/
+// #define LV_USE_SLIDER     1   /*Requires: lv_bar*/
 
-#define LV_USE_SPAN       1
-#if LV_USE_SPAN
-    /*A line text can contain maximum num of span descriptor */
-    #define LV_SPAN_SNIPPET_STACK_SIZE 64
-#endif
+// #define LV_USE_SPAN       1
+// #if LV_USE_SPAN
+//     /*A line text can contain maximum num of span descriptor */
+//     #define LV_SPAN_SNIPPET_STACK_SIZE 64
+// #endif
 
-#define LV_USE_SPINBOX    1
+// #define LV_USE_SPINBOX    1
 
-#define LV_USE_SPINNER    1
+// #define LV_USE_SPINNER    1
 
-#define LV_USE_SWITCH     1
+// #define LV_USE_SWITCH     1
 
-#define LV_USE_TEXTAREA   1   /*Requires: lv_label*/
-#if LV_USE_TEXTAREA != 0
-    #define LV_TEXTAREA_DEF_PWD_SHOW_TIME 1500    /*ms*/
-#endif
+// #define LV_USE_TEXTAREA   1   /*Requires: lv_label*/
+// #if LV_USE_TEXTAREA != 0
+//     #define LV_TEXTAREA_DEF_PWD_SHOW_TIME 1500    /*ms*/
+// #endif
 
-#define LV_USE_TABLE      1
+// #define LV_USE_TABLE      1
 
-#define LV_USE_TABVIEW    1
+// #define LV_USE_TABVIEW    1
 
-#define LV_USE_TILEVIEW   1
+// #define LV_USE_TILEVIEW   1
 
-#define LV_USE_WIN        1
+// #define LV_USE_WIN        1
 
 /*==================
  * THEMES
@@ -1016,7 +1016,6 @@
 #define LV_USE_METER             0     /* Gauge meter widget, memory intensive */
 #define LV_USE_MSGBOX            0     /* Message box */
 #define LV_USE_ROLLER            0     /* Roller selector */
-#define LV_USE_SLIDER            0     /* Slider widget */
 #define LV_USE_SPINBOX           0     /* Spinbox number input */
 #define LV_USE_SPINNER           0     /* Loading spinner */
 #define LV_USE_TABLE             0     /* Table widget, memory intensive */
@@ -1028,7 +1027,7 @@
 #define LV_USE_ANIMATION         1     /* Enable animations */
 #define LV_USE_THEME_DEFAULT     1     /* Default theme */
 #define LV_USE_FLEX              1     /* Flexbox layout, highly recommended */
-#define LV_USE_GRID              0     /* Grid layout, optional */
+// #define LV_USE_GRID              0     /* Grid layout, optional */
 #endif /*LV_CONF_H*/
 
 #endif /*End of "Content enable"*/
