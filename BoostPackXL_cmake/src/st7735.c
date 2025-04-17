@@ -179,7 +179,7 @@
  //   BSP_ST7735_Flush              // pfnFlush
  // };
  
- uint16_t _ScreenBuffer[ST7735_TFTHEIGHT * ST7735_TFTWIDTH]; // Screen buffer for double buffering
+ uint16_t _ScreenBuffer[ST7735_TFTHEIGHT * ST7735_TFTWIDTH*2]; // Screen buffer for double buffering
  
  static uint8_t ColStart, RowStart; // some displays need this changed
  static int16_t _width = ST7735_TFTWIDTH;   // this could probably be a constant, except it is used in Adafruit_GFX and depends on image rotation
@@ -496,49 +496,51 @@
  }
  
  
- void BSP_ST7735_PixelDraw(void *pvDisplayData, int32_t i32X, int32_t i32Y, uint32_t ui32Value)
+ void BSP_ST7735_PixelDraw(int32_t i32X, int32_t i32Y, uint32_t ui32Value)
  {
-   ST7735_Display *display = (ST7735_Display *)pvDisplayData;
- 
-   if (display->framebuffer == NULL) {
-       return; // No framebuffer, nothing to display
-   }
- 
    int buffer_length = 1;
-   display->framebuffer[0] = (uint16_t)ui32Value;
+   _ScreenBuffer[0] = (uint16_t)ui32Value;
  
    setAddrWindow((uint8_t)i32X, (uint8_t)i32Y, (uint8_t)i32X, (uint8_t)i32Y); // set the address window
    writecommand(ST7735_RAMWR); // write to RAM
-   writebuffer16(display->framebuffer, buffer_length); // write the buffer to the screen
+   writebuffer16(&_ScreenBuffer[0], buffer_length); // write the buffer to the screen
  }
  
- void BSP_ST7735_PixelDrawMultiple(void *pvDisplayData, int32_t i32X1, int32_t i32Y1, int32_t i32X2, int32_t i32Y2, const uint16_t *pui8Data)
+ void BSP_ST7735_PixelDrawMultiple(int32_t i32X1, int32_t i32Y1, int32_t i32X2, int32_t i32Y2, const uint16_t *pui8Data)
  {
-   ST7735_Display *display = (ST7735_Display *)pvDisplayData;
+  UARTprintf("i32X1 == %d\n  ", i32X1);
+  UARTprintf("i32Y1 == %d\n  ", i32Y1);
+  UARTprintf("i32X2 == %d\n  ", i32X2);
+  UARTprintf("i32Y2 == %d\n  ", i32Y2);
+  //  ST7735_Display *display = (ST7735_Display *)pvDisplayData;
+  //  display->framebuffer = _ScreenBuffer;
  
-   if (display->framebuffer == NULL) {
-       return; // No framebuffer, nothing to display
-   }
+  //  if (display->framebuffer == NULL) {
+  //      return; // No framebuffer, nothing to display
+  //  }
  
    // Select the starting pixel in pui8Data
    int width_length = i32X2 - i32X1 + 1; // Calculate the width of the rectangle
    int height_length = i32Y2 - i32Y1 + 1; // Calculate the height of the rectangle 
    int buffer_length = width_length * height_length; // Total number of pixels in the rectangle
    
+   UARTprintf("width_length == %d\n  ", width_length);
+   UARTprintf("height_length == %d\n  ", height_length);
+   UARTprintf("buffer_length == %d\n  ", buffer_length); 
+
    // Process pixel data based on bit depth
-   for (int32_t i = 0; i < buffer_length; i++) {
-       display->framebuffer[i] = (uint16_t)pui8Data[i]; // Store in the screen buffer
+   for (int32_t i = 0; i < ST7735_TFTHEIGHT * ST7735_TFTWIDTH; i++) {
+    _ScreenBuffer[i] = (uint16_t)pui8Data[i]; // Store in the screen buffer
    }
  
+
    // Set the address window for this line of pixels
    //ST7735_SetAddressWindow(i32X, i32Y, i32X + i32Count - 1, i32Y);
    setAddrWindow((uint8_t)i32X1, (uint8_t)i32Y1, (uint8_t)i32X2, (uint8_t)i32Y2);
  
-   writecommand(ST7735_RAMWR); // write to RAM
- 
    // Send the color data to the display
    // ST7735_WriteData((uint8_t *)ui16Buffer, i32Count * 2); // 2 bytes per pixel
-   writebuffer16(display->framebuffer, buffer_length); // write the buffer to the screen
+   writebuffer16(&_ScreenBuffer[0], ST7735_TFTHEIGHT * ST7735_TFTWIDTH); // write the buffer to the screen
  }
  
  
@@ -641,3 +643,29 @@
  /*   End of LCD Section   */
  /* ********************** */
  
+
+
+void Test_Graphics()
+{
+  uint16_t temp_ScreenBuffer[ST7735_TFTHEIGHT * ST7735_TFTWIDTH];
+
+  uint16_t color_val = 0;
+  for(int i = 0; i < ST7735_TFTHEIGHT * ST7735_TFTWIDTH; i++)
+  {
+    // Calculate x (column) and y (row)
+    int x = i % ST7735_TFTWIDTH;     // Remainder gives us x position
+    int y = i / ST7735_TFTWIDTH;     // Integer division gives us y position
+    
+    UARTprintf("x: %d, y: %d, color: %d\n  ", x, y, color_val);
+    BSP_Delay_ms(50);
+    BSP_ST7735_PixelDraw(x, y, color_val);
+    temp_ScreenBuffer[i] = color_val;
+    color_val += 4;
+  }
+
+
+  
+  UARTprintf("ST7735_TFTHEIGHT * ST7735_TFTWIDTH == %d\n  ", ST7735_TFTHEIGHT * ST7735_TFTWIDTH);
+
+  BSP_ST7735_PixelDrawMultiple(0, 0, ST7735_TFTWIDTH-1, ST7735_TFTHEIGHT-1, &temp_ScreenBuffer[0]);
+}

@@ -201,12 +201,12 @@ extern ST7735_Display st7735_display;
 // Output: none
 void BSP_LCD_Init(void);
 
-void BSP_ST7735_PixelDraw(void *pvDisplayData, int32_t i32X, int32_t i32Y, uint32_t ui32Value);
-void BSP_ST7735_PixelDrawMultiple(void *pvDisplayData, int32_t i32X1, int32_t i32Y1, int32_t i32X2, int32_t i32Y2, const uint16_t *pui8Data);
+void BSP_ST7735_PixelDraw(int32_t i32X, int32_t i32Y, uint32_t ui32Value);
+void BSP_ST7735_PixelDrawMultiple(int32_t i32X1, int32_t i32Y1, int32_t i32X2, int32_t i32Y2, const uint16_t *pui8Data);
 void BSP_ST7735_LineDrawH(void *pvDisplayData, int32_t i32X1, int32_t i32X2, int32_t i32Y, uint32_t ui32Value);
 void BSP_ST7735_LineDrawV(void *pvDisplayData, int32_t i32X, int32_t i32Y1, int32_t i32Y2, uint32_t ui32Value);
 void BSP_ST7735_RectFill(void *pvDisplayData, uint8_t i8X1, uint8_t i8Y1, uint8_t i8X2, uint8_t i8Y2, uint32_t ui32Value);
 uint32_t BSP_ST7735_ColorTranslate(volatile void *pvDisplayData, uint32_t ui32Value);
 void BSP_ST7735_Flush(void *pvDisplayData);
-
+void Test_Graphics();
 #endif

@@ -982,6 +982,53 @@
 #define LV_USE_DEMO_VECTOR_GRAPHIC  0
 /*--END OF LV_CONF_H--*/
 
+/*-------------
+ * Widgets
+ *------------*/
+
+/* Basic and most commonly used widgets */
+#define LV_USE_BTN               1     /* Button widget, essential for most UIs */
+#define LV_USE_LABEL             1     /* Text label, used in almost all UIs */
+#define LV_USE_IMG               1     /* Image widget, commonly used */
+#define LV_USE_LINE              1     /* Line drawing, fairly lightweight */
+#define LV_USE_ARC               1     /* Arc/circle segments, useful for gauges */
+
+/* Input widgets */
+#define LV_USE_CHECKBOX          1     /* Checkbox control */
+#define LV_USE_SLIDER            1     /* Slider control */
+#define LV_USE_SWITCH            1     /* On/off switch */
+#define LV_USE_TEXTAREA          1     /* Text input field */
+#define LV_USE_DROPDOWN          1     /* Dropdown selection */
+
+/* Containers */
+#define LV_USE_BAR               1     /* Progress bar, status indicator */
+#define LV_USE_BTNMATRIX         1     /* Button matrix, good for keypads */
+
+/* Disable specialized or memory-intensive widgets */
+#define LV_USE_CALENDAR          0     /* Calendar widget, relatively large */
+#define LV_USE_CHART             0     /* Chart widget, memory intensive */
+#define LV_USE_COLORWHEEL        0     /* Color selector wheel */
+#define LV_USE_IMGBTN            0     /* Image button (consider using regular BTN) */
+#define LV_USE_KEYBOARD          0     /* On-screen keyboard, very memory intensive */
+#define LV_USE_LED               0     /* LED indicator */
+#define LV_USE_LIST              0     /* List widget */
+#define LV_USE_MENU              0     /* Menu widget */
+#define LV_USE_METER             0     /* Gauge meter widget, memory intensive */
+#define LV_USE_MSGBOX            0     /* Message box */
+#define LV_USE_ROLLER            0     /* Roller selector */
+#define LV_USE_SLIDER            0     /* Slider widget */
+#define LV_USE_SPINBOX           0     /* Spinbox number input */
+#define LV_USE_SPINNER           0     /* Loading spinner */
+#define LV_USE_TABLE             0     /* Table widget, memory intensive */
+#define LV_USE_TABVIEW           0     /* Tab view container */
+#define LV_USE_TILEVIEW          0     /* Tile view container */
+#define LV_USE_WIN               0     /* Window widget */
+
+/* Animation and styling */
+#define LV_USE_ANIMATION         1     /* Enable animations */
+#define LV_USE_THEME_DEFAULT     1     /* Default theme */
+#define LV_USE_FLEX              1     /* Flexbox layout, highly recommended */
+#define LV_USE_GRID              0     /* Grid layout, optional */
 #endif /*LV_CONF_H*/
 
 #endif /*End of "Content enable"*/

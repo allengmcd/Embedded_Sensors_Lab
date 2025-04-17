@@ -1,0 +1,21 @@
+{
+    "version": 3,
+    "cmakeMinimumRequired": {
+      "major": 3,
+      "minor": 21,
+      "patch": 0
+    },
+    "configurePresets": [
+      {
+        "name": "arm-gcc",
+        "displayName": "ARM GCC Toolchain",
+        "generator": "Ninja",
+        "description": "Cross-compile with arm-none-eabi-gcc",
+        "toolchainFile": "cmake/arm-gcc-toolchain.cmake",
+        "cacheVariables": {
+          "CMAKE_BUILD_TYPE": "Debug"
+        }
+      }
+    ]
+  }
+  
