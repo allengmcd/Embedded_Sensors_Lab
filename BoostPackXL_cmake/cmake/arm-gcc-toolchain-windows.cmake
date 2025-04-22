@@ -19,5 +19,5 @@ set(CMAKE_ASM_FLAGS "${CPU_FLAGS}")
 set(CMAKE_EXE_LINKER_FLAGS "${CPU_FLAGS} -Wl,--gc-sections -T${CMAKE_SOURCE_DIR}/linker/tm4c1294xl.ld --specs=nano.specs --specs=nosys.specs")
 
 # Debug flags
-set(CMAKE_C_FLAGS_DEBUG "-O0 -g3")
-set(CMAKE_C_FLAGS_RELEASE "-O3 -g0")
+set(CMAKE_C_FLAGS_DEBUG "-O0 -g")
+set(CMAKE_C_FLAGS_RELEASE "-O0 -g")

@@ -5,8 +5,7 @@
 #include "driverlib/sysctl.h"
 #include "st7735.h"
 
-void golInit();
-void nextGeneration();
-
+void update_pixel_cb(lv_timer_t *timer);
+void create_canvas_with_pixel_timer(void);
 
 #endif

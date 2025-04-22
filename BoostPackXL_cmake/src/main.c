@@ -1,5 +1,6 @@
 #include "includes.h"
 #include "driverlib/sysctl.h"
+#include "driverlib/systick.h"
 #include "bsp_gpio.h"
 #include "bsp_lv_port_disp.h"
 #include "bsp_uart.h"
@@ -58,7 +59,7 @@ int main(void)
 
     UARTprintf("ST7735 Init...\n  ");
     //ST7735_Init();
-    BSP_LCD_Init();
+    // BSP_LCD_Init();
     // Screen_HX8353E(
     //     GPIO_PORTH_BASE, 
     //     GPIO_PIN_3, 
@@ -80,9 +81,6 @@ int main(void)
     // BSP_SSI_Send(pui32DataTx, 4);
     // ST7735_FillScreen(ST7735_RED);
 
-    UARTprintf("LVGL Init...\n  ");
-    BSP_LVGL_Init();
-    UARTprintf("LVGL Init Successful...\n  ");
     // uint32_t counter = 0;
     // while(1)
     // {
@@ -96,12 +94,13 @@ int main(void)
     //     //UARTprintf("Loop #%d...\n  ", counter);
     //     counter++;
     // }
-    Test_Graphics();
+    // Test_Graphics();
 
     UARTprintf("Starting uC/OS-II initilization...\n");
     OSInit();
     UARTprintf("uC/OS-II initilization completed without errors...\n");
     UARTprintf("Startup Task...\n");
+    
   
     OSTaskCreateExt((void (*)(void *)) AppTaskStart,           /* Create the start task                                */
                       (void           *) 0,
@@ -190,12 +189,21 @@ OSTaskCreate((void (*)(void *)) Task2,           /* Create the second task      
 
 static  void  Task1 (char *data __attribute__((unused)))
 {
-  
+    BSP_LVGL_Init();
+    // Test_Graphics();
+    create_canvas_with_pixel_timer();
     UARTprintf("Starting Task1...\n");
+
 	while(1)
 	{
         // nextGeneration();
-		//OSTimeDlyHMSM(0, 0, 0, 50); /* Wait 1 second */
+        // Handle LVGL tasks
+
+        lv_timer_handler();
+        UARTprintf("lv_timer_handler...\n");
+        // Some delay
+        // delay_ms(5);
+		// OSTimeDlyHMSM(0, 0, 0, 50); /* Wait 1 second */
 	}
 }
 

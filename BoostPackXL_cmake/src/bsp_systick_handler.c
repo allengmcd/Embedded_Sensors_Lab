@@ -5,11 +5,6 @@ static void (*user_tick_callback)(void) = NULL;
 void SysTick_Handler(void) {
     // Handle μC/OS-II tick
     OSTimeTick();
-    
-    // Call LVGL or any other registered callback
-    if (user_tick_callback != NULL) {
-        user_tick_callback();
-    }
 }
 
 void BSP_SysTickInit(void) {

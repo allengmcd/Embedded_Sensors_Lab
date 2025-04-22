@@ -920,7 +920,7 @@
 #endif
 
 /*Drivers for LCD devices connected via SPI/parallel port*/
-#define LV_USE_ST7735		0
+#define LV_USE_ST7735		1
 #define LV_USE_ST7789		0
 #define LV_USE_ST7796		0
 #define LV_USE_ILI9341		0

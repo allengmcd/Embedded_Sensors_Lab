@@ -26,7 +26,7 @@ set LMFLASH=LMFlash.exe
 ::    @goto end
 ::)
 
-%LMFLASH% -q ek-tm4c1294xl -e -v -r ../out/build/arm-gcc/tm4c129xl_project.bin
+%LMFLASH% -q ek-tm4c1294xl -e -v -r ../out/build/arm-gcc-windows/tm4c129xl_project.bin
 
 :end
 
