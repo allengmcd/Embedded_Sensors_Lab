@@ -60,7 +60,7 @@ int main(void)
 
     UARTprintf("ST7735 Init...\n  ");
     //ST7735_Init();
-    // BSP_LCD_Init();
+    BSP_LCD_Init();
     // Screen_HX8353E(
     //     GPIO_PORTH_BASE, 
     //     GPIO_PIN_3, 
