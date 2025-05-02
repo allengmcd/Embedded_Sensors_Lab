@@ -5,6 +5,9 @@
 #include "bsp_lv_port_disp.h"
 #include "bsp_uart.h"
 #include "bsp_ssi.h"
+#include "bsp_joystick.h"
+#include "bsp_accel.h"
+#include "bsp_mic.h"
 #include "st7735.h"
 #include "game_of_life.h"
 
@@ -57,6 +60,18 @@ int main(void)
     BSP_SSI_Init_DMA();
     UARTprintf("SSI DMA Init Successful...\n  ");
     
+    UARTprintf("Joystick Init...\n  ");
+    BSP_Joystick_Init();
+    UARTprintf("Joystick Init Successful...\n  ");
+    
+    UARTprintf("Accel Init...\n  ");
+    BSP_Accel_Init();
+    UARTprintf("Accel Init Successful...\n  ");
+    
+    UARTprintf("Mic Init...\n  ");
+    BSP_Mic_Init();
+    UARTprintf("Mic Init Successful...\n  ");
+
 
     UARTprintf("ST7735 Init...\n  ");
     //ST7735_Init();
@@ -191,10 +206,60 @@ OSTaskCreate((void (*)(void *)) Task2,           /* Create the second task      
 static  void  Task1 (char *data __attribute__((unused)))
 {
     BSP_LCD_FillScreen(LCD_BLACK);
+
+    uint32_t JoyX, JoyY;
+    uint32_t JoySel;
+    uint32_t AccelX, AccelY, AccelZ;
+    uint32_t Mic;
+    uint32_t IsB1Pressed, IsB2Pressed;
+
+    // (void) JoyX;
+    // (void) JoyY;
+    (void) JoySel;
+    // (void) Mic;
+    (void) IsB1Pressed;
+    (void) IsB2Pressed;
 	while(1)
 	{
         
+        BSP_Joystick_Input(&JoyX, &JoyY);
+        BSP_Accel_Read(&AccelX, &AccelY, &AccelZ);
+        BSP_Mic_Read(&Mic);
+
+        // print joystick status
         BSP_LCD_DrawString(0, 3, "JoyX=    ", BSP_LCD_Color565(255, 255, 255));
+        BSP_LCD_SetCursor(5, 3);
+        BSP_LCD_OutUDec((uint32_t)JoyX, BSP_LCD_Color565(255, 0, 255));
+        BSP_LCD_DrawString(0, 4, "JoyY=    ", BSP_LCD_Color565(255, 255, 255));
+        BSP_LCD_SetCursor(5, 4);
+        BSP_LCD_OutUDec((uint32_t)JoyY, BSP_LCD_Color565(255, 0, 255));
+        BSP_LCD_DrawString(0, 5, "Micr=    ", BSP_LCD_Color565(255, 255, 255));
+        BSP_LCD_SetCursor(5, 5);
+        BSP_LCD_OutUDec((uint32_t)Mic, BSP_LCD_Color565(255, 0, 255));
+        BSP_LCD_DrawString(0, 6, "AccX=    ", BSP_LCD_Color565(255, 255, 255));
+        BSP_LCD_SetCursor(5, 6);
+        BSP_LCD_OutUDec((uint32_t)AccelX, BSP_LCD_Color565(255, 0, 255));
+        BSP_LCD_DrawString(0, 7, "AccY=    ", BSP_LCD_Color565(255, 255, 255));
+        BSP_LCD_SetCursor(5, 7);
+        BSP_LCD_OutUDec((uint32_t)AccelY, BSP_LCD_Color565(255, 0, 255));
+        BSP_LCD_DrawString(0, 8, "AccZ=    ", BSP_LCD_Color565(255, 255, 255));
+        BSP_LCD_SetCursor(5, 8);
+        BSP_LCD_OutUDec((uint32_t)AccelZ, BSP_LCD_Color565(255, 0, 255));
+        BSP_LCD_DrawString(0, 8, "AccZ=    ", BSP_LCD_Color565(255, 255, 255));
+        BSP_LCD_SetCursor(5, 8);
+        BSP_LCD_OutUDec((uint32_t)AccelZ, BSP_LCD_Color565(255, 0, 255));
+        BSP_LCD_DrawString(0, 9, "Btn1=    ", BSP_LCD_Color565(255, 255, 255));
+        BSP_LCD_SetCursor(5, 9);
+        // BSP_LCD_OutUDec(IsB1Pressed, BSP_LCD_Color565(255, 0, 255));
+        BSP_LCD_DrawString(0, 10, "Btn2=    ", BSP_LCD_Color565(255, 255, 255));
+        BSP_LCD_SetCursor(5, 10);
+        // BSP_LCD_OutUDec(IsB2Pressed, BSP_LCD_Color565(255, 0, 255));
+        BSP_LCD_DrawString(0, 11, "JoyS=    ", BSP_LCD_Color565(255, 255, 255));
+        BSP_LCD_SetCursor(5, 11);
+
+        
+        BSP_LCD_DrawString(0, 12, "Opt=    ", BSP_LCD_Color565(255, 255, 255));
+        // BSP_LCD_OutUDec(JoySel, BSP_LCD_Color565(255, 0, 255));
         // nextGeneration();
         // Handle LVGL tasks
         // Some delay
