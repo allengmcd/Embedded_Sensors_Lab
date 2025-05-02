@@ -3,7 +3,7 @@
 #define BSP_SYSTICK_HANDLER_H
 
 #include "includes.h"
-#include "lvgl.h"
+// #include "lvgl.h"
 
 void BSP_SysTickInit(void);
 uint32_t BSP_GetTickCount(void);

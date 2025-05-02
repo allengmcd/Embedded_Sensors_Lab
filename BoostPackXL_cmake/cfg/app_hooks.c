@@ -30,7 +30,6 @@
 */
 
 #include  <os.h>
-#include "lvgl.h"
 
 
 /*

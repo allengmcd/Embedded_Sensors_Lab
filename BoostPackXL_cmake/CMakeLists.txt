@@ -22,7 +22,8 @@ set(UCOS_DIR ${CMAKE_SOURCE_DIR}/third_party/uC-OS2)
 set(UCOS_SRC_DIR ${UCOS_DIR}/uC-OS2)
 set(UCOS_CPU_DIR ${UCOS_DIR}/uC-CPU)
 set(UCOS_LIB_DIR ${UCOS_DIR}/uC-LIB)
-set(LVGL_DIR ${CMAKE_SOURCE_DIR}/third_party/lvgl/src)
+set(LVGL_DIR ${CMAKE_SOURCE_DIR}/third_party/lvgl)
+set(LVGL_SRC_DIR ${LVGL_DIR}/src)
 
 
 # Include directories
@@ -44,9 +45,10 @@ file(GLOB_RECURSE LIB_SOURCES
 )
 
 # Define library source files
-file(GLOB_RECURSE LVGL_SOURCES 
-    "${LVGL_DIR}/*.c"
-)
+# file(GLOB_RECURSE LVGL_SOURCES 
+#     "${LVGL_DIR}/*.c"
+# )
+
 
 
 # define the uC-OS2 source files
@@ -83,10 +85,10 @@ foreach(SOURCE_FILE ${UCOS_SOURCES})
     set_source_files_properties(${SOURCE_FILE} PROPERTIES COMPILE_FLAGS "-w")
 endforeach()
 
-# Disable warnings for library files
-foreach(SOURCE_FILE ${LVGL_SOURCES})
-    set_source_files_properties(${SOURCE_FILE} PROPERTIES COMPILE_FLAGS "-w" "-Os" "-flto") 
-endforeach()
+# # Disable warnings for library files
+# foreach(SOURCE_FILE ${LVGL_SOURCES})
+#     set_source_files_properties(${SOURCE_FILE} PROPERTIES COMPILE_FLAGS "-w")
+# endforeach()
 
 # Set the compile definitions
 add_compile_definitions(
@@ -94,7 +96,7 @@ add_compile_definitions(
 )
 
 # Create executable
-add_executable(${PROJECT_NAME}.elf ${SRC_FILES} ${LIB_SOURCES} ${UCOS_SOURCES} ${LVGL_SOURCES})
+add_executable(${PROJECT_NAME}.elf ${SRC_FILES} ${LIB_SOURCES} ${UCOS_SOURCES}) # ${LVGL_SOURCES})
 
 # Add include directories
 target_include_directories(${PROJECT_NAME}.elf PRIVATE
@@ -109,7 +111,7 @@ target_include_directories(${PROJECT_NAME}.elf PRIVATE
     ${UCOS_CPU_DIR}/ARM-Cortex-M/ARMv7-M/GNU
     ${UCOS_LIB_DIR}
     ${UCOS_LIB_DIR}/Ports/ARM-Cortex-M4/GNU
-    ${LVGL_DIR}
+    # ${LVGL_SRC_DIR}
 )
 
 # Print size of the binary

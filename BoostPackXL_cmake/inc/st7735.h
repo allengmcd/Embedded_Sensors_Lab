@@ -164,7 +164,7 @@
 #include "bsp_gpio.h"
 #include "bsp_ssi.h"
 #include "bsp_utils.h"
-#include "lvgl.h"
+// #include "lvgl.h"
 
 #define ST7735_TFTWIDTH  128
 #define ST7735_TFTHEIGHT 128

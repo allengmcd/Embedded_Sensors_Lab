@@ -34,10 +34,11 @@ int main(void)
     // Note: SYSCTL_CFG_VCO_240 is a new setting provided in TivaWare 2.2.x and
     // later to better reflect the actual VCO speed due to SYSCTL#22.
     //
-    g_ui32SysClock = SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ |
-        SYSCTL_OSC_MAIN |
-        SYSCTL_USE_PLL |
-        SYSCTL_CFG_VCO_240), 160000000);
+    g_ui32SysClock = SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ | SYSCTL_OSC_MAIN | 
+        SYSCTL_USE_PLL | SYSCTL_CFG_VCO_480), 160000000);
+
+        // SysCtlClockFreqSet((SYSCTL_XTAL_25MHZ | SYSCTL_OSC_MAIN | 
+        //     SYSCTL_USE_PLL | SYSCTL_CFG_VCO_480), 120000000);
 
     SysCtlClockSet(SYSCTL_SYSDIV_4 | SYSCTL_USE_PLL | SYSCTL_OSC_MAIN | SYSCTL_XTAL_16MHZ);
 
@@ -189,18 +190,13 @@ OSTaskCreate((void (*)(void *)) Task2,           /* Create the second task      
 
 static  void  Task1 (char *data __attribute__((unused)))
 {
-    BSP_LVGL_Init();
-    // Test_Graphics();
-    create_canvas_with_pixel_timer();
-    UARTprintf("Starting Task1...\n");
-
+    BSP_LCD_FillScreen(LCD_BLACK);
 	while(1)
 	{
+        
+        BSP_LCD_DrawString(0, 3, "JoyX=    ", BSP_LCD_Color565(255, 255, 255));
         // nextGeneration();
         // Handle LVGL tasks
-
-        lv_timer_handler();
-        UARTprintf("lv_timer_handler...\n");
         // Some delay
         // delay_ms(5);
 		// OSTimeDlyHMSM(0, 0, 0, 50); /* Wait 1 second */

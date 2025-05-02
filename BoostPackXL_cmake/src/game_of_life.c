@@ -1,66 +1,96 @@
-#include "game_of_life.h"
-#include "lvgl.h"
+// #include "game_of_life.h"
+// #include "lvgl.h"
 
-#define CANVAS_WIDTH  128
-#define CANVAS_HEIGHT  128
+// #define CANVAS_WIDTH  128
+// #define CANVAS_HEIGHT  128
+
+// static const char *labels[] = {
+//     "Joystick X:", 
+//     "Joystick Y:", 
+//     "Temp:", 
+//     "Voltage:", 
+//     "Pressure:"
+// };
+
+// #define LABEL_COUNT (sizeof(labels) / sizeof(labels[0]))
+// static lv_obj_t *label_objs[LABEL_COUNT];
+
+// // Timer callback to update one pixel per frame
+// void timer_cb(lv_timer_t *timer) {
+//     (void)timer;
+//     // lv_obj_t *container = lv_obj_create(lv_scr_act());
+//     // lv_obj_set_size(container, 128, 128);
+//     // lv_obj_center(container);
+
+    
+//     // lv_obj_t * container = (lv_obj_t *) lv_timer_get_user_data(timer);
+    
+//     // lv_label_set_text(label, "Hello world");
+//     // lv_obj_set_style_text_color(lv_screen_active(), lv_color_hex(0xffffff), LV_PART_MAIN);
+//     // lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
 
 
-// Timer callback to update one pixel per frame
-void timer_cb(lv_timer_t *timer) {
-    static int32_t counter = 0;
-    const char * string = "windstorrrrrrrrrrrrrrrrm~>>>";
-    const int16_t string_len = lv_strlen(string);
 
-    lv_obj_t * canvas = (lv_obj_t *) lv_timer_get_user_data(timer);
-    lv_layer_t layer;
-    lv_canvas_init_layer(canvas, &layer);
+//     // // Enable flex layout in vertical column direction
+//     // lv_obj_set_flex_flow(container, LV_FLEX_FLOW_COLUMN);
+    
+//     // // Align items to the start (left)
+//     // lv_obj_set_flex_align(container,
+//     //     LV_FLEX_ALIGN_START,  // Main axis: top-to-bottom
+//     //     LV_FLEX_ALIGN_START,  // Cross axis: left-aligned
+//     //     LV_FLEX_ALIGN_CENTER  // Track alignment (not as important here)
+//     // );
+    
+    
+//     for (unsigned int i = 0; i < LABEL_COUNT; i++) {
+//         label_objs[i] = lv_label_create(lv_screen_active());
+//         lv_label_set_text(label_objs[i], labels[i]);
+//         lv_obj_set_style_text_color(label_objs[i], lv_color_white(), LV_PART_MAIN);
+//         lv_obj_align(label_objs[i], LV_ALIGN_CENTER, -60, -60 + i * 20);
+//     }
+// }
 
-    lv_canvas_fill_bg(canvas, lv_color_white(), LV_OPA_COVER);
+// void create_canvas_with_pixel_timer(void) {
+//     // /*Create a buffer for the canvas*/
+//     // LV_DRAW_BUF_DEFINE_STATIC(draw_buf, CANVAS_WIDTH, CANVAS_HEIGHT, LV_COLOR_FORMAT_ARGB8888);
+//     // LV_DRAW_BUF_INIT_STATIC(draw_buf);
 
-    lv_draw_letter_dsc_t letter_dsc;
-    lv_draw_letter_dsc_init(&letter_dsc);
-    letter_dsc.color = lv_color_hex(0xff0000);
-    letter_dsc.font = lv_font_get_default();
+//     // lv_obj_t * canvas = lv_canvas_create(lv_screen_active());
+//     // lv_obj_set_size(canvas, CANVAS_WIDTH, CANVAS_HEIGHT);
 
-    {
-#define CURVE2_X(t) ((t) * 2 + lv_trigo_cos((t) * 5) * 40 / 32767 - 10)
-#define CURVE2_Y(t, T) ((t) * lv_trigo_sin(((t) + (T)) * 5) * 40 / 32767 / 80 + CANVAS_HEIGHT / 2)
+//     // lv_obj_center(canvas);
 
-        int32_t pre_x = CURVE2_X(-1);
-        int32_t pre_y = CURVE2_Y(-1, 0);
-        for(int16_t i = 0; i < string_len; i++) {
-            const int32_t angle = i * 5;
-            const int32_t x = CURVE2_X(angle);
-            const int32_t y = CURVE2_Y(angle + 30, counter / 2);
+//     // lv_canvas_set_draw_buf(canvas, &draw_buf);
 
-            letter_dsc.unicode = (uint32_t)string[i % string_len];
-            letter_dsc.rotation = lv_atan2(y - pre_y, x - pre_x) * 10;
-            letter_dsc.color = lv_color_hsv_to_rgb(i * 10, 100, 100);
-            lv_draw_letter(&layer, &letter_dsc, &(lv_point_t) {
-                .x = x, .y = y
-            });
+//     lv_obj_t *container = lv_obj_create(lv_scr_act());
+//     // lv_obj_set_size(container, 128, 128);
+//     // lv_obj_center(container);
 
-            pre_x = x;
-            pre_y = y;
-        }
-    }
 
-    lv_canvas_finish_layer(canvas, &layer);
+//     // // lv_timer_create(timer_cb, 1, container);
 
-    counter++;
-}
 
-void create_canvas_with_pixel_timer(void) {
-    /*Create a buffer for the canvas*/
-    LV_DRAW_BUF_DEFINE_STATIC(draw_buf, CANVAS_WIDTH, CANVAS_HEIGHT, LV_COLOR_FORMAT_ARGB8888);
-    LV_DRAW_BUF_INIT_STATIC(draw_buf);
+//     //     /*Change the active screen's background color*/
+//     //     lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0x003a57), LV_PART_MAIN);
 
-    lv_obj_t * canvas = lv_canvas_create(lv_screen_active());
-    lv_obj_set_size(canvas, CANVAS_WIDTH, CANVAS_HEIGHT);
+//         /*Create a white label, set its text and align it to the center*/
+//         // lv_obj_t * label = lv_label_create(lv_screen_active());
+//         // lv_label_set_text(label, "Hello world");
+//         // lv_obj_set_style_text_color(lv_screen_active(), lv_color_hex(0xffffff), LV_PART_MAIN);
+//         // lv_obj_align(label, LV_ALIGN_CENTER, 0, 0);
+//         lv_timer_create(timer_cb, 1, container);
+//         /*Change the active screen's background color*/
+//         // lv_obj_set_style_bg_color(lv_screen_active(), lv_color_hex(0x003a57), LV_PART_MAIN);
 
-    lv_obj_center(canvas);
-
-    lv_canvas_set_draw_buf(canvas, &draw_buf);
-
-    lv_timer_create(timer_cb, 16, canvas);
-}
+//         // /*Create a white label, set its text and align it to the center*/
+//         // lv_obj_t * label = lv_label_create(lv_screen_active());
+//         // lv_label_set_text(label, "Joystick x:");
+//         // lv_obj_set_style_text_color(lv_screen_active(), lv_color_hex(0xffffff), LV_PART_MAIN);
+//         // lv_obj_align(label, LV_ALIGN_CENTER, -60, -60);
+    
+        
+//         // lv_obj_t * label2 = lv_label_create(lv_screen_active());
+//         // lv_label_set_text(label2, "Joystick x:");
+//         // lv_obj_set_style_text_color(lv_screen_active(), lv_color_hex(0xffffff), LV_PART_MAIN);
+//         // lv_obj_align(label2, LV_ALIGN_CENTER, -60, -40);
+// }
